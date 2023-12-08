@@ -29,11 +29,20 @@ const _valueIntoToken = shape =>
           value,
         });
 
+const _valuesIntoToken = shape =>
+  (...values) => ({
+    symbol: Symbol.for('hsmusic.composite.input'),
+    shape,
+    value: values,
+  });
+
 export const input = _valueIntoToken('input');
 input.symbol = Symbol.for('hsmusic.composite.input');
 
 input.value = _valueIntoToken('input.value');
 input.dependency = _valueIntoToken('input.dependency');
+input.subroutine = _valuesIntoToken('input.subroutine');
+input.subroutine.from = subroutineFrom;
 
 input.myself = () => Symbol.for(`hsmusic.composite.input.myself`);
 input.thisProperty = () => Symbol.for('hsmusic.composite.input.thisProperty');
@@ -107,8 +116,84 @@ function getCompositionName(description) {
       : `unnamed composite`));
 }
 
+function validateSubroutineDescription(providedDescription, expectedDescription) {
+  const expectedInputNames = expectedDescription.inputs ?? [];
+  const providedInputNames =
+    (Array.isArray(providedDescription.inputs)
+      ? providedDescription.inputs
+   : typeof providedDescription.inputs === 'object'
+      ? Object.keys(providedDescription.inputs)
+      : []);
+
+  const expectedOutputNames = expectedDescription.outputs ?? [];
+  const providedOutputNames =
+    (Array.isArray(providedDescription.outputs)
+      ? providedDescription.outputs
+   : typeof providedDescription.outputs === 'object'
+      ? Object.values(providedDescription.outputs)
+      : []);
+
+  const misplacedInputNames =
+    providedInputNames
+      .filter(name => !expectedInputNames.includes(name));
+
+  const missingInputNames =
+    expectedInputNames
+      .filter(name => !providedInputNames.includes(name));
+
+  const misplacedOutputNames =
+    providedInputNames
+      .filter(name => !expectedInputNames.includes(name));
+
+  const missingOutputNames =
+    expectedInputNames
+      .filter(name => !providedInputNames.includes(name));
+
+  withAggregate({message: `Subroutine doesn't match expected description`}, ({push}) => {
+    if (!empty(misplacedInputNames)) {
+      push(new Error(`Unexpected input names: ${misplacedInputNames.join(', ')}`));
+    }
+
+    if (!empty(misplacedOutputNames)) {
+      push(new Error(`Unexpected output names: ${misplacedOutputNames.join(', ')}`));
+    }
+
+    if (!empty(missingInputNames)) {
+      push(new Error(`Required these inputs: ${missingInputNames.join(', ')}`));
+    }
+
+    if (!empty(missingOutputNames)) {
+      push(new Error(`Required these outputs: ${missingOutputNames.join(', ')}`));
+    }
+  });
+
+  return true;
+}
+
 function validateInputValue(value, description) {
+  const tokenShape = getInputTokenShape(description);
   const tokenValue = getInputTokenValue(description);
+
+  if (tokenShape === 'input.subroutine') {
+    if (value === null || value === undefined) {
+      if (tokenValue[0].defaultTemplate) {
+        return true;
+      } else {
+        throw new TypeError(`Expected a subroutine, got ${typeAppearance(value)}`);
+      }
+    } else if (!isInputToken(value)) {
+      throw new TypeError(`Expected a subroutine, got ${typeAppearance(value)}`);
+    } else if (getInputTokenShape(value) !== 'input.subroutine') {
+      throw new TypeError(`Expected a subroutine, got ${getInputTokenShape(value)}`);
+    }
+
+    const expectedDescription = tokenValue[0];
+    const providedDescription = getInputTokenValue(value)[0];
+
+    validateSubroutineDescription(providedDescription, expectedDescription);
+
+    return true;
+  }
 
   const {acceptsNull, defaultValue, type, validate} = tokenValue || {};
 
@@ -173,6 +258,7 @@ export function templateCompositeFrom(description) {
           'input',
           'input.staticDependency',
           'input.staticValue',
+          'input.subroutine',
         ]);
 
         for (const [name, value] of Object.entries(description.inputs)) {
@@ -255,6 +341,10 @@ export function templateCompositeFrom(description) {
 
               case 'input.staticDependency':
                 if ('defaultDependency' in inputDescription) return false;
+                return true;
+
+              case 'input.subroutine':
+                if ('defaultTemplate' in inputDescription[0]) return false;
                 return true;
 
               default:
@@ -396,6 +486,17 @@ export function templateCompositeFrom(description) {
             return input.value(defaultDependency);
 
           return input.value(null);
+        }
+
+        case 'input.subroutine': {
+          const {defaultTemplate, inputs, outputs} = tokenValue[0];
+          const description = {};
+
+          if (defaultTemplate) description.template = defaultTemplate;
+          if (inputs) description.inputs = inputs;
+          if (outputs) description.outputs = outputs;
+
+          return input.subroutine(description);
         }
 
         default:
@@ -556,6 +657,16 @@ export function templateCompositeFrom(description) {
 
 templateCompositeFrom.symbol = Symbol();
 
+export function subroutineFrom(template) {
+  const inputs =
+    Object.keys(template.description.inputs);
+
+  const outputs =
+    template.description.outputs;
+
+  return input.subroutine({template, inputs, outputs});
+}
+
 export const continuationSymbol = Symbol.for('compositeFrom: continuation symbol');
 export const noTransformSymbol = Symbol.for('compositeFrom: no-transform symbol');
 
@@ -660,6 +771,7 @@ export function compositeFrom(description) {
     }).map(({mappingToken, descriptionToken}) => {
         if (getInputTokenShape(descriptionToken) === 'input.staticValue') return false;
         if (getInputTokenShape(mappingToken) === 'input.value') return false;
+        if (getInputTokenShape(mappingToken) === 'input.subroutine') return false;
         return true;
       });
 
@@ -737,6 +849,14 @@ export function compositeFrom(description) {
                 isInputToken(dependency) &&
                 getInputTokenShape(dependency) === 'input.updateValue')));
 
+  // Steps reflect a subroutine if they're represented in-place by a call to
+  // input.subroutine.
+  const stepsReflectSubroutine =
+    steps
+      .map(step =>
+        isInputToken(step) &&
+        getInputTokenShape(step) === 'input.subroutine');
+
   // The expose description for a step is just the entire step object, when
   // using the shorthand syntax where {flags: {expose: true}} is left implied.
   const stepExposeDescriptions =
@@ -800,6 +920,14 @@ export function compositeFrom(description) {
 
       case 'input.thisProperty':
         return ['thisProperty'];
+
+      case 'input.subroutine':
+        if ('inputs' in tokenValue[0]) {
+          const inputTokens = Object.values(tokenValue[0].inputs);
+          return inputTokens.flatMap(parseDependenciesFromInputToken);
+        } else {
+          return [];
+        }
 
       default:
         return [];
@@ -952,6 +1080,8 @@ export function compositeFrom(description) {
               return initialDependencies[tokenValue];
             case 'input.value':
               return tokenValue;
+            case 'input.subroutine':
+              return token;
             case 'input.updateValue':
               if (!expectingTransform)
                 throw new Error(`Unexpected input.updateValue() accessed on non-transform call`);
@@ -997,14 +1127,16 @@ export function compositeFrom(description) {
 
     for (
       const [i, {
-        step,
+        stepAtIndex,
         stepComposes,
       }] of
         stitchArrays({
-          step: steps,
+          stepAtIndex: steps,
           stepComposes: stepsCompose,
         }).entries()
     ) {
+      let step = stepAtIndex;
+
       const isBase = i === steps.length - 1;
 
       debug(() => [
@@ -1015,6 +1147,100 @@ export function compositeFrom(description) {
         (step.flags?.compose
           ? getCompositionName(step)
           : step)]);
+
+      const inputDictionary =
+        Object.fromEntries(
+          stitchArrays({symbol: inputSymbols, value: inputValues})
+            .map(({symbol, value}) => [symbol, value]));
+
+      const filterableDependencies = {
+        ...availableDependencies,
+        ...inputMetadata,
+        ...inputDictionary,
+        ...
+          (expectingTransform
+            ? {[input.updateValue()]: valueSoFar}
+            : {}),
+
+        [input.myself()]:
+          (initialDependencies && Object.hasOwn(initialDependencies, 'this')
+            ? initialDependencies.this
+            : null),
+
+        [input.thisProperty()]:
+          (initialDependencies && Object.hasOwn(initialDependencies, 'thisProperty')
+            ? initialDependencies.thisProperty
+            : null),
+      };
+
+      const callingSubroutineForThisStep =
+        stepsReflectSubroutine[i];
+
+      if (callingSubroutineForThisStep) {
+        const tokenValue = getInputTokenValue(step);
+        const fauxInputToken = input(tokenValue[0]);
+        const stepDescription = tokenValue[1] ?? {};
+
+        const subroutineDescription =
+          getInputTokenValue(filterableDependencies[fauxInputToken])[0];
+
+        const inputMapping =
+          (Array.isArray(subroutineDescription.inputs)
+            ? Object.fromEntries(
+                subroutineDescription.inputs
+                  .map(name => [name, name]))
+         : typeof subroutineDescription.inputs === 'object'
+            ? subroutineDescription.inputs
+            : {});
+
+        const outputMapping =
+          (Array.isArray(subroutineDescription.outputs)
+            ? Object.fromEntries(
+                subroutineDescription.outputs
+                  .map(name => [name, name]))
+         : typeof subroutineDescription.outputs === 'object'
+            ? subroutineDescription.outputs
+            : {});
+
+        const expectedInputNames = Object.keys(inputMapping);
+        const providedInputNames = Object.keys(stepDescription.inputs ?? {});
+
+        const unexpectedInputNames =
+          providedInputNames
+            .filter(name => !expectedInputNames.includes(name));
+
+        if (!empty(unexpectedInputNames)) {
+          throw new TypeError(`Unexpected input names: ${unexpectedInputNames.join(', ')}`);
+        }
+
+        const mappedInputs =
+          Object.fromEntries(
+            Object.entries(inputMapping)
+              .map(([stepInputName, subroutineInputName]) => [
+                subroutineInputName,
+                stepDescription.inputs[stepInputName],
+              ]));
+
+        const mappedOutputs =
+          Object.fromEntries(
+            Object.entries(outputMapping)
+              .map(([subroutineOutputName, stepOutputName]) => [
+                subroutineOutputName,
+                stepDescription.outputs[stepOutputName],
+              ]));
+
+        const instantiatedTemplate =
+          subroutineDescription.template
+            .inputs(mappedInputs)
+            .outputs(mappedOutputs);
+
+        const composition =
+          compositeFrom(instantiatedTemplate.toResolvedComposition());
+
+        step = composition;
+
+        debug(() => [`step #${i+1} - replaced with subroutine "${getCompositionName(composition)}"`]);
+      }
 
       const expose =
         (step.flags
@@ -1052,31 +1278,6 @@ export function compositeFrom(description) {
         expectingTransform && expose.transform;
 
       let continuationStorage;
-
-      const inputDictionary =
-        Object.fromEntries(
-          stitchArrays({symbol: inputSymbols, value: inputValues})
-            .map(({symbol, value}) => [symbol, value]));
-
-      const filterableDependencies = {
-        ...availableDependencies,
-        ...inputMetadata,
-        ...inputDictionary,
-        ...
-          (expectingTransform
-            ? {[input.updateValue()]: valueSoFar}
-            : {}),
-
-        [input.myself()]:
-          (initialDependencies && Object.hasOwn(initialDependencies, 'this')
-            ? initialDependencies.this
-            : null),
-
-        [input.thisProperty()]:
-          (initialDependencies && Object.hasOwn(initialDependencies, 'thisProperty')
-            ? initialDependencies.thisProperty
-            : null),
-      };
 
       const selectDependencies =
         (expose.dependencies ?? []).map(dependency => {
