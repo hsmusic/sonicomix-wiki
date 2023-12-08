@@ -479,6 +479,18 @@ export function parseSerieses(entries) {
   });
 }
 
+export function parseArtworks(artworks) {
+  if (!Array.isArray(artworks)) {
+    return artworks;
+  }
+
+  return artworks.map(item => ({
+    name: item['Name'],
+    directory: item['Directory'] ?? null,
+    artistContribs: parseContributors(item['Artists'] ?? null),
+  }));
+}
+
 export function parseDimensions(string) {
   // It's technically possible to pass an array like [30, 40] through here.
   // That's not really an issue because if it isn't of the appropriate shape,
@@ -594,6 +606,31 @@ export function parseAnnotatedReferences(entries, {
     return {
       [referenceProperty]: match.groups.main,
       [annotationProperty]: match.groups.accent ?? null,
+    };
+  });
+}
+
+export function parseFeaturedCharacters(entries) {
+  return parseArrayEntries(entries, item => {
+    if (typeof item === 'object' && item['Who'])
+      return {
+        who: item['Who'],
+        how: item['How'] ?? null,
+      };
+
+    if (typeof item !== 'string') return item;
+
+    const match = item.match(extractAccentRegex);
+
+    if (!match)
+      return {
+        who: item,
+        how: null,
+      };
+
+    return {
+      who: match.groups.main,
+      how: match.groups.accent ?? null,
     };
   });
 }
@@ -1214,9 +1251,40 @@ export function linkWikiDataArrays(wikiData) {
   const linkWikiDataSpec = new Map([
     [wikiData.artistData, [
       'artistData',
+      'storyData',
     ]],
 
-    [wikiData.homepageLayout?.rows, []],
+    [wikiData.characterData, [
+      'characterData',
+      'storyData',
+    ]],
+
+    [wikiData.homepageLayout?.rows, [
+      'issueData',
+      'publisherData',
+    ]],
+
+    [wikiData.issueData, [
+      'artistData',
+      'publisherData',
+      'storyData',
+    ]],
+
+    [wikiData.publisherData, [
+      'issueData',
+      'storyData',
+    ]],
+
+    [wikiData.storyData, [
+      'artistData',
+      'characterData',
+      'issueData',
+      'publisherData',
+    ]],
+
+    [wikiData.storyCharacterData, [
+      'characterData',
+    ]],
   ]);
 
   for (const [things, keys] of linkWikiDataSpec.entries()) {

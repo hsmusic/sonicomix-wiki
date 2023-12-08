@@ -173,7 +173,24 @@ export function filterReferenceErrors(wikiData, {
   find,
   bindFind,
 }) {
-  const referenceSpec = [];
+  const referenceSpec = [
+    ['characterData', {
+      groupedCharacters: '_groupedCharacter',
+    }],
+
+    ['issueData', {
+      publisher: 'publisher',
+      coverArtworks: '_artwork',
+      featuredStories: 'story',
+    }],
+
+    ['storyData', {
+      artContribs: '_contrib',
+      featuredCharacters: '_featuredCharacter',
+      publisher: 'publisher',
+      storyContribs: '_contrib',
+    }],
+  ];
 
   const boundFind = bindFind(wikiData, {mode: 'error'});
   const findArtistOrAlias = bindFindArtistOrAlias(boundFind);
@@ -190,6 +207,16 @@ export function filterReferenceErrors(wikiData, {
             let writeProperty = true;
 
             switch (findFnKey) {
+              case '_artwork':
+                if (value) {
+                  value =
+                    value.map(({artistContribs}) =>
+                      artistContribs.map(({who}) => who));
+                }
+
+                writeProperty = false;
+                break;
+
               case '_commentary':
                 if (value) {
                   value =
@@ -232,12 +259,21 @@ export function filterReferenceErrors(wikiData, {
             let findFn;
 
             switch (findFnKey) {
+              case '_artwork':
               case '_commentary':
                 findFn = findArtistOrAlias;
                 break;
 
               case '_contrib':
                 findFn = contribRef => findArtistOrAlias(contribRef.artist);
+                break;
+
+              case '_featuredCharacter':
+                findFn = ({who}) => boundFind.character(who);
+                break;
+
+              case '_groupedCharacter':
+                findFn = ({character}) => boundFind.character(character);
                 break;
 
               default:
@@ -267,14 +303,19 @@ export function filterReferenceErrors(wikiData, {
             let newPropertyValue = value;
 
             determineNewPropertyValue: {
-              if (findFnKey === '_commentary') {
+              if (findFnKey === '_commentary' || findFnKey === '_artwork') {
+                const message =
+                  (findFnKey === '_commentary'
+                    ? `Errors in entry's artist references`
+                    : `Errors in artwork's artist references`);
+
                 filter(
                   value, {message: errorMessage},
                   decorateErrorWithIndex(refs =>
                     (refs.length === 1
                       ? suppress(findFn)(refs[0])
                       : filterAggregate(
-                          refs, {message: `Errors in entry's artist references`},
+                          refs, {message},
                           decorateErrorWithIndex(suppress(findFn)))
                             .aggregate
                             .close())));

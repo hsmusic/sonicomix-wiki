@@ -18,19 +18,19 @@ export default {
       validate: v => v.strictArrayOf(v.isHTML),
     },
 
-    rerelease: {type: 'boolean'},
+    reissue: {type: 'boolean'},
   },
 
   generate: (slots, {html, language}) =>
     language.encapsulate('artistPage.creditList.entry', entryCapsule =>
       html.tag('li',
-        slots.rerelease && {class: 'rerelease'},
+        slots.reissue && {class: 'reissue'},
 
         language.encapsulate(entryCapsule, workingCapsule => {
           const workingOptions = {entry: slots.content};
 
-          if (slots.rerelease) {
-            workingCapsule += '.rerelease';
+          if (slots.reissue) {
+            workingCapsule += '.reissue';
             return language.$(workingCapsule, workingOptions);
           }
 

@@ -695,6 +695,21 @@ export const isContributionPreset = validateProperties({
 
 export const isContributionPresetList = validateArrayItems(isContributionPreset);
 
+export const isArtwork = validateProperties({
+  name: isName,
+  directory: optional(isDirectory),
+  artistContribs: isContributionList,
+});
+
+export const isFeaturedCharacter = validateProperties({
+  who: validateReference('character'),
+  how: optional(isStringNonEmpty),
+});
+
+export const isFeaturedCharacterList = validateArrayItems(isFeaturedCharacter);
+
+export const isArtworkList = validateArrayItems(isArtwork);
+
 export const isAdditionalFile = validateProperties({
   title: isName,
   description: optional(isContentString),

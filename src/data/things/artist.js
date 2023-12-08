@@ -18,6 +18,7 @@ import {
   fileExtension,
   flag,
   name,
+  reverseContributionList,
   singleReference,
   urls,
   wikiData,
@@ -27,7 +28,7 @@ export class Artist extends Thing {
   static [Thing.referenceType] = 'artist';
   static [Thing.wikiDataArray] = 'artistData';
 
-  static [Thing.getPropertyDescriptors] = () => ({
+  static [Thing.getPropertyDescriptors] = ({Story}) => ({
     // Update & expose
 
     name: name('Unnamed Artist'),
@@ -57,6 +58,22 @@ export class Artist extends Thing {
 
     artistData: wikiData({
       class: input.value(Artist),
+    }),
+
+    storyData: wikiData({
+      class: input.value(Story),
+    }),
+
+    // Expose only
+
+    storiesAsWriter: reverseContributionList({
+      data: 'storyData',
+      list: input.value('storyContribs'),
+    }),
+
+    storiesAsArtist: reverseContributionList({
+      data: 'storyData',
+      list: input.value('artContribs'),
     }),
   });
 

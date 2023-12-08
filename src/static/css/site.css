@@ -1168,7 +1168,24 @@ li:not(:first-child:last-child) .tooltip,
   fill: var(--primary-color);
 }
 
-.rerelease,
+.icon.has-text {
+  display: block;
+  width: unset;
+  height: 1.4em;
+}
+
+.icon.has-text > svg {
+  width: 18px;
+  height: 18px;
+  top: -0.1em;
+}
+
+.icon.has-text > .icon-text {
+  margin-left: 24px;
+  padding-right: 8px;
+}
+
+.reissue,
 .other-group-accent {
   opacity: 0.7;
   font-style: oblique;
@@ -1225,7 +1242,6 @@ p .current {
 
 #cover-art-container {
   font-size: 0.8em;
-  border: 2px solid var(--primary-color);
   box-shadow:
     0 2px 14px -6px var(--primary-color),
     0 0 12px 12px #00000080;
@@ -1251,12 +1267,6 @@ p .current {
    * (which has a background that otherwise causes sharp corners).
    */
   overflow: hidden;
-}
-
-#cover-art-container .image-container {
-  /* Border is handled on the cover-art-container. */
-  border: none;
-  border-radius: 0;
 }
 
 #cover-art-container .image-details {
@@ -1316,6 +1326,85 @@ ul.image-details.art-tag-details li {
 
 ul.image-details.art-tag-details li:not(:last-child)::after {
   content: " \00b7 ";
+}
+
+.artwork-gallery-info {
+  display: block;
+
+  padding: 6px 9px 6px 9px;
+  margin-top: 0;
+  margin-bottom: 0;
+  border-top: 1px dashed var(--deep-color);
+}
+
+.artwork-gallery-page:not(.current) {
+  display: none;
+}
+
+.artwork-gallery-page {
+  border: 2px solid var(--primary-color);
+  border-radius: 0 0 4px 4px;
+}
+
+.artwork-gallery-page:has(.artwork-gallery-info) {
+  border-radius: 0 0 6px 6px;
+}
+
+.artwork-gallery-page .image-container {
+  display: block;
+  min-height: 6em;
+  min-width: 150px;
+  border: none;
+}
+
+.artwork-gallery-nav {
+  display: flex;
+  overflow-y: hidden;
+}
+
+.artwork-gallery-nav a {
+  display: inline-block;
+  padding: 4px 6px;
+}
+
+.artwork-gallery-nav a.current {
+  font-weight: 800;
+  background: var(--primary-color);
+  color: black;
+  padding: 6px 8px 2px 8px;
+  border-radius: 4px 4px 0 0;
+}
+
+.artwork-gallery-nav a:not(.current) {
+  background: var(--deep-color);
+  border-top: 1px solid color-mix(in srgb, var(--primary-color), 80% transparent);
+  margin-top: 2px;
+  padding-bottom: 4px;
+}
+
+.artwork-gallery-nav a:not(.current):has(~ .current) {
+  border-top-left-radius: 4px;
+  border-left: 1px solid color-mix(in srgb, var(--primary-color), 80% transparent);
+
+  &:not(:first-child) {
+    margin-left: -2px;
+  }
+}
+
+.artwork-gallery-nav a:not(.current):not(:has(~ .current)) {
+  border-top-right-radius: 4px;
+  border-right: 1px solid color-mix(in srgb, var(--primary-color), 80% transparent);
+  margin-right: -2px;
+
+  /* https://stackoverflow.com/questions/6653344/pure-css-descending-z-index */
+  &:nth-last-child(1) { z-index: 1; }
+  &:nth-last-child(2) { z-index: 2; }
+  &:nth-last-child(3) { z-index: 3; }
+  &:nth-last-child(4) { z-index: 4; }
+  &:nth-last-child(5) { z-index: 5; }
+  &:nth-last-child(6) { z-index: 6; }
+  &:nth-last-child(7) { z-index: 7; }
+  &:nth-last-child(8) { z-index: 8; }
 }
 
 .image-details.non-unique-details {
@@ -1793,6 +1882,12 @@ li > ul {
    * cause some awkwardness - `#content li` takes precedence.
    */
   padding-bottom: 3px;
+}
+
+blockquote.blurb {
+  margin-left: 20px !important;
+  border-left: 1px dotted white;
+  padding-left: 20px;
 }
 
 .group-contributions-table {
@@ -2998,8 +3093,8 @@ html[data-language-code="preview-en"][data-url-key="localized.home"] #content
    */
   #cover-art-container {
     float: right;
-    width: 40%;
-    max-width: 400px;
+    width: min(40%, 400px);
+    max-width: max-content;
     margin: -60px 0 10px 20px;
 
     position: relative;

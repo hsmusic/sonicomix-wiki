@@ -5,7 +5,7 @@
     "type": "module",
     "main": "src/upd8.js",
     "bin": {
-        "hsmusic": "./src/upd8.js"
+        "sonicomix": "./src/upd8.js"
     },
     "scripts": {
         "test": "tap",
@@ -20,6 +20,7 @@
         "#composite/data": "./src/data/composite/data/index.js",
         "#composite/wiki-data": "./src/data/composite/wiki-data/index.js",
         "#composite/wiki-properties": "./src/data/composite/wiki-properties/index.js",
+        "#composite/things/story": "./src/data/composite/things/story/index.js",
         "#composite/things/album": "./src/data/composite/things/album/index.js",
         "#composite/things/artist": "./src/data/composite/things/artist/index.js",
         "#composite/things/contribution": "./src/data/composite/things/contribution/index.js",

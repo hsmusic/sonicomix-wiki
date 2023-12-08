@@ -1,6 +1,9 @@
+import {unique} from '#sugar';
+
 export default {
   contentDependencies: [
     'generateArtistInfoPageCommentaryChunkedList',
+    // 'generateArtistInfoPageStoriesChunkedList',
     'generateArtistNavLinks',
     'generateContentHeading',
     'generateCoverArtwork',
@@ -12,7 +15,13 @@ export default {
 
   extraDependencies: ['html', 'language'],
 
-  query: () => ({
+  query: (artist) => ({
+    allStories:
+      unique([
+        ...artist.storiesAsWriter,
+        ...artist.storiesAsArtist,
+      ]),
+
     hasGallery:
       false,
   }),
@@ -39,6 +48,9 @@ export default {
       artist.urls
         .map(url => relation('linkExternal', url)),
 
+    // storiesChunkedList:
+    //   relation('generateArtistInfoPageStoriesChunkedList', artist),
+
     commentaryChunkedList:
       relation('generateArtistInfoPageCommentaryChunkedList', artist),
   }),
@@ -54,6 +66,9 @@ export default {
       (artist.hasAvatar
         ? artist.avatarFileExtension
         : null),
+
+    totalStoryCount:
+      query.allStories.length,
   }),
 
   generate: (data, relations, {html, language}) =>
@@ -110,6 +125,50 @@ export default {
                       language.$(pageCapsule, 'commentaryList.title')),
                 ].filter(Boolean)),
             })),
+
+          html.tags([
+            relations.contentHeading.clone()
+              .slots({
+                tag: 'h2',
+                attributes: {id: 'stories'},
+                title: language.$(pageCapsule, 'storyList.title'),
+              }),
+
+            html.tag('p',
+              {[html.onlyIfSiblings]: true},
+
+              language.$(pageCapsule, 'storyList.storiesContributedLine', {
+                artist:
+                  data.name,
+
+                stories:
+                  language.countStories(data.totalStoryCount, {unit: true}),
+              })),
+
+            relations.storiesChunkedList,
+          ]),
+
+          html.tags([
+            relations.contentHeading.clone()
+              .slots({
+                tag: 'h2',
+                attributes: {id: 'stories'},
+                title: language.$(pageCapsule, 'storyList.title'),
+              }),
+
+            html.tag('p',
+              {[html.onlyIfSiblings]: true},
+
+              language.$(pageCapsule, 'storyList.storiesContributedLine', {
+                artist:
+                  data.name,
+
+                stories:
+                  language.countStories(data.totalStoryCount, {unit: true}),
+              })),
+
+            relations.storiesChunkedList,
+          ]),
 
           html.tags([
             relations.contentHeading.clone()

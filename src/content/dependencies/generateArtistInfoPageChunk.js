@@ -5,15 +5,10 @@ export default {
 
   slots: {
     mode: {
-      validate: v => v.is('flash', 'album'),
+      validate: v => v.is('issue'),
     },
 
-    albumLink: {
-      type: 'html',
-      mutable: false,
-    },
-
-    flashActLink: {
+    issueLink: {
       type: 'html',
       mutable: false,
     },
@@ -54,42 +49,13 @@ export default {
 
     accent: {
       switch (slots.mode) {
-        case 'album': {
-          accentedLink = slots.albumLink;
-
-          const options = {album: accentedLink};
-          const parts = ['artistPage.creditList.album'];
+        case 'issue': {
+          const options = {issue: slots.issueLink};
+          const parts = ['artistPage.creditList.issue'];
 
           if (onlyDate) {
             parts.push('withDate');
             options.date = language.formatDate(onlyDate);
-          }
-
-          if (slots.duration) {
-            parts.push('withDuration');
-            options.duration =
-              language.formatDuration(slots.duration, {
-                approximate: slots.durationApproximate,
-              });
-          }
-
-          accentedLink = language.formatString(...parts, options);
-          break;
-        }
-
-        case 'flash': {
-          accentedLink = slots.flashActLink;
-
-          const options = {act: accentedLink};
-          const parts = ['artistPage.creditList.flashAct'];
-
-          if (onlyDate) {
-            parts.push('withDate');
-            options.date = language.formatDate(onlyDate);
-          } else if (earliestDate && latestDate) {
-            parts.push('withDateRange');
-            options.dateRange =
-              language.formatDateRange(earliestDate, latestDate);
           }
 
           accentedLink = language.formatString(...parts, options);

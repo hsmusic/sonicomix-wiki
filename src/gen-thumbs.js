@@ -1265,6 +1265,15 @@ export function getExpectedImagePaths(mediaPath, {urls, wikiData}) {
     wikiData.artistData
       .filter(artist => artist.hasAvatar)
       .map(artist => fromRoot.to('media.artistAvatar', artist.directory, artist.avatarFileExtension)),
+
+    wikiData.issueData
+      .flatMap(issue =>
+        issue.coverArtworks.map(artwork =>
+          fromRoot.to('media.issueCover',
+            issue.publisher.directory,
+            issue.directory,
+            artwork.directory,
+            artwork.extension))),
   ].flat();
 
   sortByName(paths, {getName: path => path});

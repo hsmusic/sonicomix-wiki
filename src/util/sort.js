@@ -354,6 +354,50 @@ export function prepareAndSort(sources, prepareForSort, sortFunction) {
 // Highly contextual sort functions - these are only for very specific types
 // of Things, and have appropriately hard-coded behavior.
 
+export function sortStoriesChronologically(data) {
+  const reduceOrOnly = (array, fn) =>
+    (array.length === 0
+      ? null
+   : array.length === 1
+      ? array[0]
+      : array.reduce(fn));
+
+  // Group stories by earliest issue...
+
+  const storyToEarliestIssue =
+    new Map(data.map(story => [
+      story,
+      reduceOrOnly(
+        story.featuredInIssues,
+        (a, b) => a.date > b.date ? a : b),
+    ]));
+
+  sortByDirectory(data, {
+    getDirectory: story =>
+      (storyToEarliestIssue.get(story)
+        ? storyToEarliestIssue.get(story).directory
+        : null),
+  });
+
+  // Sort by position in earliest issue...
+
+  sortByPositionInParent(data, {
+    getParent: story => storyToEarliestIssue.get(story),
+    getChildren: issue => (issue ? issue.featuredStories : []),
+  });
+
+  // ...and finally sort by date of earliest issue.
+
+  sortByDate(data, {
+    getDate: story =>
+      (storyToEarliestIssue.get(story)
+        ? storyToEarliestIssue.get(story).date
+        : null),
+  });
+
+  return data;
+}
+
 export function sortContributionsChronologically(data, sortThings, {
   latestFirst = false,
 } = {}) {

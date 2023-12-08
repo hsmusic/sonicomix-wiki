@@ -23,12 +23,12 @@ listingSpec.push({
   contentFunction: 'listArtistsByCommentaryEntries',
 });
 
-listingSpec.push({
-  directory: 'random',
-  stringsKey: 'other.randomPages',
-  contentFunction: 'listRandomPageLinks',
-  groupUnderOther: true,
-});
+// listingSpec.push({
+//   directory: 'random',
+//   stringsKey: 'other.randomPages',
+//   contentFunction: 'listRandomPageLinks',
+//   groupUnderOther: true,
+// });
 
 {
   const errors = [];

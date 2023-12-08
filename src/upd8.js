@@ -1396,6 +1396,9 @@ async function main() {
       if (!paragraph) console.log('');
 
       logInfo`Loaded data and processed objects:`;
+      logThings('publisherData', 'publishers');
+      logThings('storyData', 'stories');
+      logThings('characterData', 'characters');
       logThings(
         (wikiData.artistData
           ? wikiData.artistData.filter(artist => !artist.isAlias)
@@ -1493,9 +1496,30 @@ async function main() {
     });
 
     const commonDataMap = {
+      issueData: new Set([
+        // Needed for sorting
+        'date', 'name',
+        // Needed for computing page paths
+        'directory',
+      ]),
+
       listingSpec: new Set([
         // Needed for computing page paths
         'contentFunction', 'featureFlag',
+      ]),
+
+      publisherData: new Set([
+        // Needed for sorting
+        'name',
+        // Needed for computing page paths
+        'directory',
+      ]),
+
+      storyData: new Set([
+        // Needed for sorting
+        'name',
+        // Needed for computing page paths
+        'directory',
       ]),
     };
 

@@ -1,10 +1,12 @@
 export const HOMEPAGE_LAYOUT_DATA_FILE = 'homepage.yaml';
 
+import {input} from '#composite';
 import Thing from '#thing';
 import {isStringNonEmpty, validateArrayItems, validateInstanceOf}
   from '#validators';
 
-import {color, contentString, name} from '#composite/wiki-properties';
+import {color, contentString, name, wikiData}
+  from '#composite/wiki-properties';
 
 export class HomepageLayout extends Thing {
   static [Thing.friendlyName] = `Homepage Layout`;
@@ -74,7 +76,7 @@ export class HomepageLayout extends Thing {
 export class HomepageLayoutRow extends Thing {
   static [Thing.friendlyName] = `Homepage Row`;
 
-  static [Thing.getPropertyDescriptors] = () => ({
+  static [Thing.getPropertyDescriptors] = ({Publisher, Story}) => ({
     // Update & expose
 
     name: name('Unnamed Homepage Row'),
@@ -97,7 +99,13 @@ export class HomepageLayoutRow extends Thing {
     // to the convenience of providing these, the superclass accepts all wiki
     // data arrays depended upon by any subclass.
 
-    /* no wiki data arrays */
+    publisherData: wikiData({
+      class: input.value(Publisher),
+    }),
+
+    storyData: wikiData({
+      class: input.value(Story),
+    }),
   });
 
   static [Thing.yamlDocumentSpec] = {
