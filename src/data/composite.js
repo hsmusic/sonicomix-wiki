@@ -169,13 +169,19 @@ export function templateCompositeFrom(description) {
         const missingCallsToInput = [];
         const wrongCallsToInput = [];
 
+        const validCallsToInput = new Set([
+          'input',
+          'input.staticDependency',
+          'input.staticValue',
+        ]);
+
         for (const [name, value] of Object.entries(description.inputs)) {
           if (!isInputToken(value)) {
             missingCallsToInput.push(name);
             continue;
           }
 
-          if (!['input', 'input.staticDependency', 'input.staticValue'].includes(getInputTokenShape(value))) {
+          if (!validCallsToInput.has(getInputTokenShape(value))) {
             wrongCallsToInput.push(name);
           }
         }
@@ -233,11 +239,27 @@ export function templateCompositeFrom(description) {
         expectedInputNames
           .filter(name => !providedInputNames.includes(name))
           .filter(name => {
+            const inputShape = getInputTokenShape(description.inputs[name]);
             const inputDescription = getInputTokenValue(description.inputs[name]);
             if (!inputDescription) return true;
-            if ('defaultValue' in inputDescription) return false;
-            if ('defaultDependency' in inputDescription) return false;
-            return true;
+
+            switch (inputShape) {
+              case 'input':
+                if ('defaultValue' in inputDescription) return false;
+                if ('defaultDependency' in inputDescription) return false;
+                return true;
+
+              case 'input.staticValue':
+                if ('defaultValue' in inputDescription) return false;
+                return true;
+
+              case 'input.staticDependency':
+                if ('defaultDependency' in inputDescription) return false;
+                return true;
+
+              default:
+                return true;
+            }
           });
 
       const wrongTypeInputNames = [];
@@ -341,10 +363,49 @@ export function templateCompositeFrom(description) {
       }
     });
 
+    const parseDefaultMappingFromInputDescription = (inputDescription) => {
+      const tokenShape = getInputTokenShape(inputDescription);
+      const tokenValue = getInputTokenValue(inputDescription);
+
+      switch (tokenShape) {
+        case 'input': {
+          const {defaultValue, defaultDependency} = tokenValue;
+
+          if (defaultValue)
+            return input.value(defaultValue);
+
+          if (defaultDependency)
+            return input.dependency(defaultDependency);
+
+          return input.value(null);
+        }
+
+        case 'input.staticValue': {
+          const {defaultValue} = tokenValue;
+
+          if (defaultValue)
+            return input.value(defaultValue);
+
+          return input.value(null);
+        }
+
+        case 'input.staticDependency': {
+          const {defaultDependency} = tokenValue;
+
+          if (defaultDependency)
+            return input.value(defaultDependency);
+
+          return input.value(null);
+        }
+
+        default:
+          return input.value(null);
+      }
+    };
+
     const inputMapping = {};
     if ('inputs' in description) {
       for (const [name, token] of Object.entries(description.inputs)) {
-        const tokenValue = getInputTokenValue(token);
         if (name in inputOptions) {
           if (typeof inputOptions[name] === 'string') {
             inputMapping[name] = input.dependency(inputOptions[name]);
@@ -353,12 +414,8 @@ export function templateCompositeFrom(description) {
             // an input token is a valid input option (asserted above).
             inputMapping[name] = inputOptions[name];
           }
-        } else if (tokenValue.defaultValue) {
-          inputMapping[name] = input.value(tokenValue.defaultValue);
-        } else if (tokenValue.defaultDependency) {
-          inputMapping[name] = input.dependency(tokenValue.defaultDependency);
         } else {
-          inputMapping[name] = input.value(null);
+          inputMapping[name] = parseDefaultMappingFromInputDescription(token);
         }
       }
     }
@@ -718,28 +775,42 @@ export function compositeFrom(description) {
     stepExposeDescriptions
       .map(expose => !!expose?.transform);
 
+  function parseDependenciesFromInputToken(inputToken) {
+    if (typeof inputToken === 'string') {
+      if (inputToken.startsWith('#')) {
+        return [];
+      } else {
+        return [inputToken];
+      }
+    }
+
+    const tokenShape = getInputTokenShape(inputToken);
+    const tokenValue = getInputTokenValue(inputToken);
+
+    switch (tokenShape) {
+      case 'input.dependency':
+        if (tokenValue.startsWith('#')) {
+          return [];
+        } else {
+          return [tokenValue];
+        }
+
+      case 'input.myself':
+        return ['this'];
+
+      case 'input.thisProperty':
+        return ['thisProperty'];
+
+      default:
+        return [];
+    }
+  }
+
   const dependenciesFromSteps =
     unique(
       stepExposeDescriptions
         .flatMap(expose => expose?.dependencies ?? [])
-        .map(dependency => {
-          if (typeof dependency === 'string')
-            return (dependency.startsWith('#') ? null : dependency);
-
-          const tokenShape = getInputTokenShape(dependency);
-          const tokenValue = getInputTokenValue(dependency);
-          switch (tokenShape) {
-            case 'input.dependency':
-              return (tokenValue.startsWith('#') ? null : tokenValue);
-            case 'input.myself':
-              return 'this';
-            case 'input.thisProperty':
-              return 'thisProperty';
-            default:
-              return null;
-          }
-        })
-        .filter(Boolean));
+        .flatMap(parseDependenciesFromInputToken));
 
   const anyStepsUseUpdateValue =
     stepExposeDescriptions
@@ -895,6 +966,11 @@ export function compositeFrom(description) {
               throw new TypeError(`Unexpected input shape ${tokenShape}`);
           }
         });
+
+    const inputDictionary =
+      Object.fromEntries(
+        stitchArrays({symbol: inputSymbols, value: inputValues})
+          .map(({symbol, value}) => [symbol, value]));
 
     withAggregate({message: `Errors in input values provided to ${compositionName}`}, ({push}) => {
       for (const {dynamic, name, value, description} of stitchArrays({
