@@ -425,6 +425,14 @@ export const isContribution = validateProperties({
 
 export const isContributionList = validateArrayItems(isContribution);
 
+export const isArtwork = validateProperties({
+  name: isName,
+  directory: optional(isDirectory),
+  artistContribs: isContributionList,
+});
+
+export const isArtworkList = validateArrayItems(isArtwork);
+
 export const isAdditionalFile = validateProperties({
   title: isString,
   description: optional(isStringNonEmpty),

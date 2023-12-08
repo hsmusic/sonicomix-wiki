@@ -1,4 +1,4 @@
-// Check out the info on reverseReferenceList!
+// Check out the info on reverseSingleReference!
 // This is its composable form.
 
 import {input, templateCompositeFrom} from '#composite';
@@ -9,15 +9,15 @@ import {inputOptionalSort, withSortedList} from '#composite/data';
 import inputWikiData from './inputWikiData.js';
 
 export default templateCompositeFrom({
-  annotation: `withReverseReferenceList`,
+  annotation: `withReverseSingleReference`,
 
   inputs: {
     data: inputWikiData({allowMixedTypes: false}),
-    list: input({type: 'string'}),
+    property: input({type: 'string'}),
     sort: inputOptionalSort(),
   },
 
-  outputs: ['#reverseReferenceList'],
+  outputs: ['#reverseSingleReference'],
 
   steps: () => [
     exitWithoutDependency({
@@ -27,22 +27,27 @@ export default templateCompositeFrom({
     }),
 
     {
-      dependencies: [input.myself(), input('data'), input('list')],
+      dependencies: [input.myself(), input('data'), input('property')],
 
       compute: (continuation, {
         [input.myself()]: thisThing,
         [input('data')]: data,
-        [input('list')]: refListProperty,
+        [input('property')]: refProperty,
       }) =>
         continuation({
-          ['#reverseReferenceList']:
-            data.filter(thing => thing[refListProperty].includes(thisThing)),
+          ['#reverseSingleReference']:
+            data.filter(thing => thing[refProperty] === thisThing),
         }),
     },
 
     input.subroutine('sort', {
-      inputs: {things: '#reverseReferenceList'},
-      outputs: {'#sortedThings': '#reverseReferenceList'}
+      inputs: {
+        things: '#reverseSingleReference',
+      },
+
+      outputs: {
+        '#sortedThings': '#reverseSingleReference',
+      },
     }),
   ],
 });

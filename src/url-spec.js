@@ -25,14 +25,12 @@ const urlSpec = {
 
       home: '',
 
-      album: 'album/<>/',
-      albumCommentary: 'commentary/album/<>/',
-      albumGallery: 'album/<>/gallery/',
-
       artist: 'artist/<>/',
       artistGallery: 'artist/<>/gallery/',
 
       commentaryIndex: 'commentary/',
+
+      issue: 'issue/<>/<>/',
 
       listingIndex: 'list/',
 
@@ -42,7 +40,11 @@ const urlSpec = {
 
       newsEntry: 'news/<>/',
 
+      publisher: 'publisher/<>/',
+
       staticPage: '<>/',
+
+      story: 'story/<>/<>/',
     },
   },
 
@@ -69,6 +71,9 @@ const urlSpec = {
       path: '<>',
 
       artistAvatar: 'artist-avatar/<>.<>',
+
+      // publisher, issue, cover, extension
+      issueCover: 'issue-art/<>/<>/<>.<>',
     },
   },
 

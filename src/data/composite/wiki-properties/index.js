@@ -5,6 +5,7 @@
 
 export {default as additionalFiles} from './additionalFiles.js';
 export {default as additionalNameList} from './additionalNameList.js';
+export {default as artworkList} from './artworkList.js';
 export {default as color} from './color.js';
 export {default as commentary} from './commentary.js';
 export {default as commentatorArtists} from './commentatorArtists.js';
@@ -19,6 +20,8 @@ export {default as flag} from './flag.js';
 export {default as name} from './name.js';
 export {default as referenceList} from './referenceList.js';
 export {default as reverseReferenceList} from './reverseReferenceList.js';
+export {default as reverseSingleReference} from './reverseSingleReference.js';
+export {default as shortName} from './shortName.js';
 export {default as simpleDate} from './simpleDate.js';
 export {default as simpleString} from './simpleString.js';
 export {default as singleReference} from './singleReference.js';

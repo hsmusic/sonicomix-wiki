@@ -51,7 +51,7 @@ export class HomepageLayout extends Thing {
 export class HomepageLayoutRow extends Thing {
   static [Thing.friendlyName] = `Homepage Row`;
 
-  static [Thing.getPropertyDescriptors] = () => ({
+  static [Thing.getPropertyDescriptors] = ({Publisher, Story}) => ({
     // Update & expose
 
     name: name('Unnamed Homepage Row'),
@@ -74,5 +74,12 @@ export class HomepageLayoutRow extends Thing {
     // to the convenience of providing these, the superclass accepts all wiki
     // data arrays depended upon by any subclass.
 
+    publisherData: wikiData({
+      class: input.value(Publisher),
+    }),
+
+    storyData: wikiData({
+      class: input.value(Story),
+    }),
   });
 }

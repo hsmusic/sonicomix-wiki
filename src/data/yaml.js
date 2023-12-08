@@ -48,9 +48,12 @@ export const ART_TAG_DATA_FILE = 'tags.yaml';
 export const ARTIST_DATA_FILE = 'artists.yaml';
 export const HOMEPAGE_LAYOUT_DATA_FILE = 'homepage.yaml';
 export const NEWS_DATA_FILE = 'news.yaml';
+export const PUBLISHER_DATA_FILE = 'publishers.yaml';
 export const WIKI_INFO_FILE = 'wiki-info.yaml';
 
+export const DATA_ISSUE_DIRECTORY = 'issue';
 export const DATA_STATIC_PAGE_DIRECTORY = 'static-page';
+export const DATA_STORY_DIRECTORY = 'story';
 
 // --> Document processing functions
 
@@ -404,6 +407,26 @@ export const processArtistDocument = makeProcessDocument(T.Artist, {
   ignoredFields: ['Dead URLs'],
 });
 
+export const processIssueDocument = makeProcessDocument(T.Issue, {
+  fieldTransformations: {
+    'Date': (value) => new Date(value),
+    'Cover Artworks': parseArtworks,
+  },
+
+  propertyFieldMapping: {
+    name: 'Issue',
+    directory: 'Directory',
+    publisher: 'Publisher',
+    date: 'Date',
+
+    blurb: 'Blurb',
+
+    coverArtworks: 'Cover Artworks',
+
+    featuredStories: 'Featured Stories',
+  },
+});
+
 export const processNewsEntryDocument = makeProcessDocument(T.NewsEntry, {
   fieldTransformations: {
     'Date': (value) => new Date(value),
@@ -417,6 +440,14 @@ export const processNewsEntryDocument = makeProcessDocument(T.NewsEntry, {
   },
 });
 
+export const processPublisherDocument = makeProcessDocument(T.Publisher, {
+  propertyFieldMapping: {
+    name: 'Publisher',
+    directory: 'Directory',
+    shortName: 'Short Name',
+  },
+});
+
 export const processStaticPageDocument = makeProcessDocument(T.StaticPage, {
   propertyFieldMapping: {
     name: 'Name',
@@ -426,6 +457,14 @@ export const processStaticPageDocument = makeProcessDocument(T.StaticPage, {
     stylesheet: 'Style',
     script: 'Script',
     content: 'Content',
+  },
+});
+
+export const processStoryDocument = makeProcessDocument(T.Story, {
+  propertyFieldMapping: {
+    name: 'Story',
+    directory: 'Directory',
+    publisher: 'Publisher',
   },
 });
 
@@ -558,6 +597,18 @@ export function parseAdditionalNames(additionalNameStrings) {
   });
 }
 
+export function parseArtworks(artworks) {
+  if (!Array.isArray(artworks)) {
+    return artworks;
+  }
+
+  return artworks.map(item => ({
+    name: item['Name'],
+    directory: item['Directory'] ?? null,
+    artistContribs: parseContributors(item['Artists'] ?? null),
+  }));
+}
+
 function parseDimensions(string) {
   // It's technically possible to pass an array like [30, 40] through here.
   // That's not really an issue because if it isn't of the appropriate shape,
@@ -669,6 +720,52 @@ export const dataSteps = [
       }
 
       return {wikiInfo};
+    },
+  },
+
+  {
+    title: `Process story files`,
+
+    files: dataPath =>
+      traverse(path.join(dataPath, DATA_STORY_DIRECTORY), {
+        filterFile: name => path.extname(name) === '.yaml',
+        prefixPath: DATA_STORY_DIRECTORY,
+      }),
+
+    documentMode: documentModes.onePerFile,
+    processDocument: processStoryDocument,
+
+    save(results) {
+      return {storyData: results};
+    },
+  },
+
+  {
+    title: `Process issue files`,
+
+    files: dataPath =>
+      traverse(path.join(dataPath, DATA_ISSUE_DIRECTORY), {
+        filterFile: name => path.extname(name) === '.yaml',
+        prefixPath: DATA_ISSUE_DIRECTORY,
+      }),
+
+    documentMode: documentModes.onePerFile,
+    processDocument: processIssueDocument,
+
+    save(results) {
+      return {issueData: results};
+    },
+  },
+
+  {
+    title: `Process publishers file`,
+    file: PUBLISHER_DATA_FILE,
+
+    documentMode: documentModes.allInOne,
+    processDocument: processPublisherDocument,
+
+    save(results) {
+      return {publisherData: results};
     },
   },
 
@@ -1127,7 +1224,27 @@ export function linkWikiDataArrays(wikiData, {
       'artistData',
     ]],
 
-    [wikiData.homepageLayout?.rows, []],
+    [wikiData.homepageLayout?.rows, [
+      'issueData',
+      'publisherData',
+    ]],
+
+    [wikiData.issueData, [
+      'artistData',
+      'publisherData',
+      'storyData',
+    ]],
+
+    [wikiData.publisherData, [
+      'issueData',
+      'storyData',
+    ]],
+
+    [wikiData.storyData, [
+      'characterData',
+      'issueData',
+      'publisherData',
+    ]],
   ]);
 
   for (const [things, keys] of linkWikiDataSpec.entries()) {
@@ -1144,7 +1261,12 @@ export function linkWikiDataArrays(wikiData, {
 }
 
 export function sortWikiDataArrays(wikiData) {
-  Object.assign(wikiData, {});
+  Object.assign(wikiData, {
+    artistData: sortAlphabetically(wikiData.artistData.slice()),
+    issueData: sortAlphabetically(wikiData.issueData.slice()),
+    publisherData: sortAlphabetically(wikiData.publisherData.slice()),
+    storyData: sortChronologically(wikiData.storyData.slice()),
+  });
 
   // Re-link data arrays, so that every object has the new, sorted versions.
   // Note that the sorting step deliberately creates new arrays (mutating
@@ -1164,6 +1286,8 @@ export function filterDuplicateDirectories(wikiData) {
   const deduplicateSpec = [
     'artistData',
     'newsData',
+    'publisherData',
+    'storyData',
   ];
 
   const aggregate = openAggregate({message: `Duplicate directories found`});
@@ -1233,7 +1357,19 @@ export function filterDuplicateDirectories(wikiData) {
 // any errors). At the same time, we remove errored references from the thing's
 // data array.
 export function filterReferenceErrors(wikiData) {
-  const referenceSpec = [];
+  const referenceSpec = [
+    ['issueData', processIssueDocument, {
+      publisher: 'publisher',
+      coverArtworks: '_artworks',
+      featuredStories: 'story',
+    }],
+
+    ['publisherData', processPublisherDocument, {}],
+
+    ['storyData', processStoryDocument, {
+      publisher: 'publisher',
+    }],
+  ];
 
   function getNestedProp(obj, key) {
     const recursive = (o, k) =>
@@ -1277,6 +1413,16 @@ export function filterReferenceErrors(wikiData) {
 
                 writeProperty = false;
                 break;
+
+              case '_artworks':
+                if (value) {
+                  value =
+                    value.map(({artistContribs}) =>
+                      artistContribs.map(({who}) => who));
+                }
+
+                writeProperty = false;
+                break;
             }
 
             if (value === undefined) {
@@ -1303,6 +1449,7 @@ export function filterReferenceErrors(wikiData) {
             };
 
             switch (findFnKey) {
+              case '_artworks':
               case '_commentary':
                 findFn = findArtistOrAlias;
                 break;
@@ -1391,15 +1538,18 @@ export function filterReferenceErrors(wikiData) {
 
             let newPropertyValue = value;
 
-            if (findFnKey === '_commentary') {
-              // Commentary doesn't write a property value, so no need to set.
+            if (findFnKey === '_commentary' || findFnKey === '_artworks') {
+              const message =
+                (findFnKey === '_commentary'
+                  ? `Errors in entry's artist references`
+                  : `Errors in artwork's artist references`);
+              // These don't write a property value, so no need to set.
               filter(
                 value, {message: errorMessage},
                 decorateErrorWithIndex(refs =>
                   (refs.length === 1
                     ? suppress(findFn)(refs[0])
-                    : filterAggregate(
-                        refs, {message: `Errors in entry's artist references`},
+                    : filterAggregate(refs, {message},
                         decorateErrorWithIndex(suppress(findFn)))
                           .aggregate
                           .close())));

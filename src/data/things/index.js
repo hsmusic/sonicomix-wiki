@@ -9,20 +9,28 @@ import {openAggregate, showAggregate} from '#sugar';
 import Thing from './thing.js';
 
 import * as artistClasses from './artist.js';
+import * as characterClasses from './character.js';
 import * as homepageLayoutClasses from './homepage-layout.js';
+import * as issueClassees from './issue.js';
 import * as languageClasses from './language.js';
 import * as newsEntryClasses from './news-entry.js';
+import * as publisherClasses from './publisher.js';
 import * as staticPageClasses from './static-page.js';
+import * as storyClasses from './story.js';
 import * as wikiInfoClasses from './wiki-info.js';
 
 export {default as Thing} from './thing.js';
 
 const allClassLists = {
   'artist.js': artistClasses,
+  'character.js': characterClasses,
   'homepage-layout.js': homepageLayoutClasses,
+  'issue.js': issueClassees,
   'language.js': languageClasses,
   'news-entry.js': newsEntryClasses,
+  'publisher.js': publisherClasses,
   'static-page.js': staticPageClasses,
+  'story.js': storyClasses,
   'wiki-info.js': wikiInfoClasses,
 };
 

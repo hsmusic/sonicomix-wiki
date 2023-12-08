@@ -19,10 +19,16 @@ function warnOrThrow(mode, message) {
 export function processAllAvailableMatches(data, {
   include = thing => true,
 
-  getMatchableNames = thing =>
+  contextKey = null,
+
+  getMatchableNames = thing => [
     (Object.hasOwn(thing, 'name')
       ? [thing.name]
       : []),
+    (thing.shortName
+      ? [thing.shortName]
+      : []),
+  ].flat(),
 } = {}) {
   const byName = Object.create(null);
   const byDirectory = Object.create(null);
@@ -31,7 +37,12 @@ export function processAllAvailableMatches(data, {
   for (const thing of data) {
     if (!include(thing)) continue;
 
-    byDirectory[thing.directory] = thing;
+    const context = (contextKey ? thing[contextKey] : null);
+    if (context) {
+      byDirectory[context.directory + '/' + thing.directory] = thing;
+    } else {
+      byDirectory[thing.directory] = thing;
+    }
 
     for (const name of getMatchableNames(thing)) {
       if (typeof name !== 'string') {
@@ -60,6 +71,7 @@ export function processAllAvailableMatches(data, {
 
 function findHelper({
   referenceTypes,
+  contextKey = undefined,
 
   include = undefined,
   getMatchableNames = undefined,
@@ -91,6 +103,7 @@ function findHelper({
     if (!subcache) {
       subcache =
         processAllAvailableMatches(data, {
+          contextKey,
           include,
           getMatchableNames,
         });
@@ -141,6 +154,15 @@ const find = {
     referenceTypes: ['artist', 'artist-gallery'],
   }),
 
+  character: findHelper({
+    referenceTypes: ['character'],
+  }),
+
+  issue: findHelper({
+    referenceTypes: ['issue'],
+    contextKey: 'publisher',
+  }),
+
   listing: findHelper({
     referenceTypes: ['listing'],
   }),
@@ -149,8 +171,17 @@ const find = {
     referenceTypes: ['news-entry'],
   }),
 
+  publisher: findHelper({
+    referenceTypes: ['publisher'],
+  }),
+
   staticPage: findHelper({
     referenceTypes: ['static'],
+  }),
+
+  story: findHelper({
+    referenceTypes: ['story'],
+    contextKey: 'publisher',
   }),
 };
 
@@ -165,9 +196,12 @@ export function bindFind(wikiData, opts1) {
   return Object.fromEntries(
     Object.entries({
       artist: 'artistData',
+      issue: 'issueData',
       listing: 'listingSpec',
       newsEntry: 'newsData',
       staticPage: 'staticPageData',
+      story: 'storyData',
+      publisher: 'publisherData',
     }).map(([key, value]) => {
       const findFn = find[key];
       const thingData = wikiData[value];

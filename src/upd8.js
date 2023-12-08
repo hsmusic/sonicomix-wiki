@@ -826,6 +826,8 @@ async function main() {
       logInfo` - ${wikiData[thingDataProp]?.length ?? colors.red('(Missing!)')} ${colors.normal(colors.dim(label))}`;
     try {
       logInfo`Loaded data and processed objects:`;
+      logThings('publisherData', 'publishers');
+      logThings('storyData', 'stories');
       logThings('artistData', 'artists');
       if (wikiData.newsData) {
         logThings('newsData', 'news entries');
@@ -907,14 +909,40 @@ async function main() {
     });
 
     const commonDataMap = {
+      artistData: new Set([
+        // Needed for sorting
+        'name',
+      ]),
+
       artistAliasData: new Set([
         // Needed for computing page paths
         'aliasedArtist',
       ]),
 
+      issueData: new Set([
+        // Needed for sorting
+        'date', 'name',
+        // Needed for computing page paths
+        'directory',
+      ]),
+
       listingSpec: new Set([
         // Needed for computing page paths
         'contentFunction', 'featureFlag',
+      ]),
+
+      publisherData: new Set([
+        // Needed for sorting
+        'name',
+        // Needed for computing page paths
+        'directory',
+      ]),
+
+      storyData: new Set([
+        // Needed for sorting
+        'name',
+        // Needed for computing page paths
+        'directory',
       ]),
     };
 

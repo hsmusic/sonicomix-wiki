@@ -18,7 +18,7 @@ import Thing from './thing.js';
 export class Artist extends Thing {
   static [Thing.referenceType] = 'artist';
 
-  static [Thing.getPropertyDescriptors] = () => ({
+  static [Thing.getPropertyDescriptors] = ({Story}) => ({
     // Update & expose
 
     name: name('Unnamed Artist'),
@@ -45,9 +45,12 @@ export class Artist extends Thing {
 
     // Update only
 
-
     artistData: wikiData({
       class: input.value(Artist),
+    }),
+
+    storyData: wikiData({
+      class: input.value(Story),
     }),
 
     // Expose only

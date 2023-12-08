@@ -32,24 +32,5 @@ export function generateRedirectHTML(title, target, {language}) {
 }
 
 export function generateRandomLinkDataJSON({wikiData}) {
-  const {albumData, artistData} = wikiData;
-
-  return JSON.stringify({
-    albumDirectories:
-      albumData
-        .map(album => album.directory),
-
-    albumTrackDirectories:
-      albumData
-        .map(album => album.tracks
-          .map(track => track.directory)),
-
-    artistDirectories:
-      artistData
-        .map(artist => artist.directory),
-
-    artistNumContributions:
-      artistData
-        .map(artist => getArtistNumContributions(artist)),
-  });
+  return JSON.stringify({});
 }

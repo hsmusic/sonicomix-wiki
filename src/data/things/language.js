@@ -682,6 +682,7 @@ Object.assign(Language.prototype, {
   countContributions: countHelper('contributions'),
   countCoverArts: countHelper('coverArts'),
   countDays: countHelper('days'),
+  countIssues: countHelper('issues'),
   countMonths: countHelper('months'),
   countTimesReferenced: countHelper('timesReferenced'),
   countTimesUsed: countHelper('timesUsed'),

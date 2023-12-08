@@ -97,6 +97,16 @@ count:
       many: ""
       other: "{COVER_ARTS} cover arts"
 
+  issues:
+    _: "{ISSUES}"
+    withUnit:
+      zero: ""
+      one: "{ISSUES} issue"
+      two: ""
+      few: ""
+      many: ""
+      other: "{ISSUES} issues"
+
   flashes:
     _: "{FLASHES}"
     withUnit:
@@ -855,6 +865,16 @@ commentaryIndex:
     title: "Choose an album:"
     item: "{ALBUM} ({WORDS} across {ENTRIES})"
 
+issuePage:
+  title: "{ISSUE}"
+  published: "Published {DATE} by {PUBLISHER}."
+
+  coverGallery:
+    coverBy: "By {ARTISTS}."
+
+  storiesFeatured:
+    title: "Stories featured in this issue:"
+    item: "{STORY}"
 
 #
 # listingIndex:
@@ -1017,6 +1037,21 @@ listingPage:
 
           randomAlbumWholeSite: "Random Album (whole site)"
           randomTrackWholeSite: "Random Track (whole site)"
+
+publisherPage:
+  title: "{PUBLISHER}"
+
+  publishedIssues:
+    title: "Published {ISSUES}:"
+    item: "({YEAR}) {ISSUE}"
+
+storyPage:
+  title: "{STORY}"
+
+  featuredInIssues:
+    single: "Featured in {ISSUE}, published {DATE} by {PUBLISHER}."
+    listTitle: "Featured in issues published by {PUBLISHER}:"
+    listItem: "({DATE}) {ISSUE}"
 
 #
 # newsIndex:

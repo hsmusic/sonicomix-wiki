@@ -2301,6 +2301,62 @@ if (document.documentElement.dataset.urlKey === 'localized.albumCommentary') {
   clientSteps.addInternalListeners.push(addAlbumCommentaryInternalListeners);
 }
 
+// Artwork galleries --------------------------------------
+
+const artworkGalleryInfo = clientInfo.artworkGalleryInfo = {
+  pages: null,
+  pageLinks: null,
+};
+
+function getArtworkGalleryReferences() {
+  const info = artworkGalleryInfo;
+
+  const containers =
+    Array.from(document.getElementsByClassName('artwork-gallery'));
+
+  info.pages =
+    containers.map(container =>
+      Array.from(container.getElementsByClassName('artwork-gallery-page')));
+
+  info.pageLinks =
+    containers.map(container =>
+      Array.from(container.querySelectorAll('.artwork-gallery-nav a')));
+}
+
+function addArtworkGalleryPageListeners() {
+  const info = artworkGalleryInfo;
+
+  for (const {pages, pageLinks} of stitchArrays({
+    pages: info.pages,
+    pageLinks: info.pageLinks,
+  })) {
+    for (const {page, pageLink} of stitchArrays({
+      page: pages,
+      pageLink: pageLinks,
+    })) {
+      pageLink.addEventListener('click', domEvent => {
+        domEvent.preventDefault();
+        const thisPage = page;
+        for (const {page, pageLink} of stitchArrays({
+          page: pages,
+          pageLink: pageLinks,
+        })) {
+          if (page === thisPage) {
+            page.classList.add('current');
+            pageLink.classList.add('current');
+          } else {
+            page.classList.remove('current');
+            pageLink.classList.remove('current');
+          }
+        }
+      });
+    }
+  }
+}
+
+clientSteps.getPageReferences.push(getArtworkGalleryReferences);
+clientSteps.addPageListeners.push(addArtworkGalleryPageListeners);
+
 // Run setup steps ----------------------------------------
 
 for (const [key, steps] of Object.entries(clientSteps)) {

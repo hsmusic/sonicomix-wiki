@@ -6,14 +6,14 @@ listingSpec.push({
   directory: 'artists/by-name',
   stringsKey: 'listArtists.byName',
   contentFunction: 'listArtistsByName',
-  seeAlso: ['artists/by-contribs', 'artists/by-group'],
+  seeAlso: ['artists/by-contribs'],
 });
 
 listingSpec.push({
   directory: 'artists/by-contribs',
   stringsKey: 'listArtists.byContribs',
   contentFunction: 'listArtistsByContributions',
-  seeAlso: ['artists/by-name', 'artists/by-group'],
+  seeAlso: ['artists/by-name'],
 });
 
 listingSpec.push({
@@ -22,12 +22,12 @@ listingSpec.push({
   contentFunction: 'listArtistsByCommentaryEntries',
 });
 
-listingSpec.push({
-  directory: 'random',
-  stringsKey: 'other.randomPages',
-  contentFunction: 'listRandomPageLinks',
-  groupUnderOther: true,
-});
+// listingSpec.push({
+//   directory: 'random',
+//   stringsKey: 'other.randomPages',
+//   contentFunction: 'listRandomPageLinks',
+//   groupUnderOther: true,
+// });
 
 {
   const errors = [];

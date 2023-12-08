@@ -678,13 +678,27 @@ p .current {
           backdrop-filter: blur(3px);
 }
 
-ul.image-details li {
-  display: inline-block;
-  margin: 0;
+.artwork-gallery-page:not(.current) {
+  display: none;
 }
 
-#cover-art-container ul li:not(:last-child)::after {
-  content: " \00b7 ";
+.artwork-gallery-page .image-container {
+  display: block;
+  min-height: 6em;
+  min-width: 150px;
+}
+
+.artwork-gallery-nav a {
+  display: inline-block;
+  padding: 4px;
+}
+
+.artwork-gallery-nav a.current {
+  font-weight: 800;
+  background: var(--primary-color);
+  color: black;
+  padding: 4px 8px;
+  border-radius: 4px 4px 0 0;
 }
 
 .commentary-entry-heading {
@@ -930,6 +944,12 @@ ul > li.has-details {
 
 li > ul {
   margin-top: 5px;
+}
+
+blockquote.blurb {
+  margin-left: 20px !important;
+  border-left: 1px dotted white;
+  padding-left: 20px;
 }
 
 .group-contributions-table {
@@ -1999,8 +2019,8 @@ html[data-language-code="preview-en"][data-url-key="localized.home"] #content
    */
   #cover-art-container {
     float: right;
-    width: 40%;
-    max-width: 400px;
+    width: min(40%, 400px);
+    max-width: max-content;
     margin: -60px 0 10px 20px;
 
     position: relative;
