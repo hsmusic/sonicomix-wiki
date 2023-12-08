@@ -738,15 +738,12 @@ export const isContributionPreset = validateProperties({
 
 export const isContributionPresetList = validateArrayItems(isContributionPreset);
 
-export const isTrackSection = validateProperties({
-  name: optional(isName),
-  color: optional(isColor),
-  dateOriginallyReleased: optional(isDate),
-  isDefaultTrackSection: optional(isBoolean),
-  tracks: optional(validateReferenceList('track')),
+export const isFeaturedCharacter = validateProperties({
+  who: validateReference('character'),
+  how: optional(isStringNonEmpty),
 });
 
-export const isTrackSectionList = validateArrayItems(isTrackSection);
+export const isFeaturedCharacterList = validateArrayItems(isFeaturedCharacter);
 
 export const isWallpaperPart = validateProperties({
   asset: optional(isString),

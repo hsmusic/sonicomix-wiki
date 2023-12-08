@@ -1558,8 +1558,25 @@ label > input[type=checkbox]:not(:checked) + span {
   fill: var(--primary-color);
 }
 
-.other-group-accent,
-.rerelease-line {
+.icon.has-text {
+  display: block;
+  width: unset;
+  height: 1.4em;
+}
+
+.icon.has-text > svg {
+  width: 18px;
+  height: 18px;
+  top: -0.1em;
+}
+
+.icon.has-text > .icon-text {
+  margin-left: 24px;
+  padding-right: 8px;
+}
+
+.reissue,
+.other-group-accent {
   opacity: 0.7;
   font-style: oblique;
 }
@@ -1702,7 +1719,6 @@ hr.cute,
 
 .cover-artwork {
   font-size: 0.8em;
-  border: 2px solid var(--primary-color);
 
   border-radius: 0 0 4px 4px;
   background: var(--bg-black-color);
@@ -1727,46 +1743,7 @@ hr.cute,
   overflow: hidden;
 }
 
-#artwork-column .cover-artwork {
-  --normal-shadow: 0 0 12px 12px #00000080;
-
-  box-shadow:
-    0 2px 14px -6px var(--primary-color),
-    var(--normal-shadow);
-}
-
-#artwork-column .cover-artwork:not(:first-child),
-#artwork-column .cover-artwork-joiner {
-  margin-left: 30px;
-  margin-right: 5px;
-}
-
-#artwork-column .cover-artwork:not(:first-child) {
-  --normal-shadow: 0 0 9px 9px #00000068;
-}
-
-#artwork-column .cover-artwork:first-child + .cover-artwork-joiner,
-#artwork-column .cover-artwork.attached-artwork-is-main-artwork,
-#artwork-column .cover-artwork.attached-artwork-is-main-artwork + .cover-artwork-joiner {
-  margin-left: 17.5px;
-  margin-right: 17.5px;
-}
-
-.cover-artwork:where(#artwork-column .cover-artwork:not(:first-child)) {
-  margin-top: 20px;
-}
-
-#artwork-column .cover-artwork:last-child:not(:first-child) {
-  margin-bottom: 25px;
-}
-
-.cover-artwork .image-container {
-  /* Border is handled on the .cover-artwork. */
-  border: none;
-  border-radius: 0 !important;
-}
-
-.cover-artwork .image-details {
+#cover-art-container .image-details {
   border-top-color: var(--deep-color);
 }
 
@@ -1827,6 +1804,89 @@ ul.image-details.art-tag-details li {
 
 ul.image-details.art-tag-details li:not(:last-child)::after {
   content: " \00b7 ";
+}
+
+.artwork-gallery-info {
+  display: block;
+
+  padding: 6px 9px 6px 9px;
+  margin-top: 0;
+  margin-bottom: 0;
+  border-top: 1px dashed var(--deep-color);
+}
+
+.artwork-gallery-page:not(.current) {
+  display: none;
+}
+
+.artwork-gallery-page {
+  border: 2px solid var(--primary-color);
+  border-radius: 0 0 4px 4px;
+}
+
+.artwork-gallery-page:has(.artwork-gallery-info) {
+  border-radius: 0 0 6px 6px;
+}
+
+.artwork-gallery-page .image-container {
+  display: block;
+  min-height: 6em;
+  min-width: 150px;
+  border: none;
+}
+
+.artwork-gallery-nav {
+  display: flex;
+  overflow-y: hidden;
+}
+
+.artwork-gallery-nav a {
+  display: inline-block;
+  padding: 4px 6px;
+}
+
+.artwork-gallery-nav a.current {
+  font-weight: 800;
+  background: var(--primary-color);
+  color: black;
+  padding: 6px 8px 2px 8px;
+  border-radius: 4px 4px 0 0;
+}
+
+.artwork-gallery-nav a:not(.current) {
+  background: var(--deep-color);
+  border-top: 1px solid color-mix(in srgb, var(--primary-color), 80% transparent);
+  margin-top: 2px;
+  padding-bottom: 4px;
+}
+
+.artwork-gallery-nav a:not(.current):has(~ .current) {
+  border-top-left-radius: 4px;
+  border-left: 1px solid color-mix(in srgb, var(--primary-color), 80% transparent);
+
+  &:not(:first-child) {
+    margin-left: -2px;
+  }
+}
+
+.artwork-gallery-nav a:not(.current):not(:has(~ .current)) {
+  border-top-right-radius: 4px;
+  border-right: 1px solid color-mix(in srgb, var(--primary-color), 80% transparent);
+  margin-right: -2px;
+
+  /* https://stackoverflow.com/questions/6653344/pure-css-descending-z-index */
+  &:nth-last-child(1) { z-index: 1; }
+  &:nth-last-child(2) { z-index: 2; }
+  &:nth-last-child(3) { z-index: 3; }
+  &:nth-last-child(4) { z-index: 4; }
+  &:nth-last-child(5) { z-index: 5; }
+  &:nth-last-child(6) { z-index: 6; }
+  &:nth-last-child(7) { z-index: 7; }
+  &:nth-last-child(8) { z-index: 8; }
+}
+
+.image-details.non-unique-details {
+  font-style: oblique;
 }
 
 p.image-details.illustrator-details {
@@ -2491,6 +2551,12 @@ li > ul {
    * cause some awkwardness - `#content li` takes precedence.
    */
   padding-bottom: 3px;
+}
+
+blockquote.blurb {
+  margin-left: 20px !important;
+  border-left: 1px dotted white;
+  padding-left: 20px;
 }
 
 .group-contributions-table {
@@ -4227,9 +4293,8 @@ main.long-content .content-sticky-heading-container .content-sticky-subheading-r
    */
   #artwork-column {
     float: right;
-    width: 40%;
-    min-width: 220px;
-    max-width: 280px;
+    width: min(40%, 280px);
+    max-width: max-content;
     margin: -60px 0 10px 20px;
 
     position: relative;

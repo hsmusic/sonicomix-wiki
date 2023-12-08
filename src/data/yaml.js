@@ -753,6 +753,18 @@ export function parseWallpaperParts(entries) {
   });
 }
 
+export function parseIssueCovers(entries, {subdoc, IssueCover}) {
+  if (!Array.isArray(entries)) {
+    return entries;
+  }
+
+  return parseArrayEntries(entries, item => {
+    if (typeof item !== 'object') return item;
+
+    return subdoc(IssueCover, item, {bindInto: 'issue'});
+  });
+}
+
 export function parseDimensions(string) {
   // It's technically possible to pass an array like [30, 40] through here.
   // That's not really an issue because if it isn't of the appropriate shape,
@@ -1059,6 +1071,31 @@ export function parseArtistAliases(value, {subdoc, Artist}) {
     } else {
       return item;
     }
+  });
+}
+
+export function parseFeaturedCharacters(entries) {
+  return parseArrayEntries(entries, item => {
+    if (typeof item === 'object' && item['Who'])
+      return {
+        who: item['Who'],
+        how: item['How'] ?? null,
+      };
+
+    if (typeof item !== 'string') return item;
+
+    const match = item.match(extractAccentRegex);
+
+    if (!match)
+      return {
+        who: item,
+        how: null,
+      };
+
+    return {
+      who: match.groups.main,
+      how: match.groups.accent ?? null,
+    };
   });
 }
 
@@ -1771,7 +1808,17 @@ export function linkWikiDataArrays(wikiData, {bindFind, bindReverse}) {
 
     ['commentaryData', [/* find */]],
 
+    ['characterData', [/* find, reverse */]],
+
     ['homepageLayout.sections.rows', [/* find */]],
+
+    ['issueData', [/* find */]],
+    ['issueCoverData', [/* find */]],
+
+    ['publisherData', [/* reverse */]],
+
+    ['storyData', [/* find, reverse */]],
+    ['storyCharacterData', [/* find */]],
   ]);
 
   const constructorHasFindMap = new Map();

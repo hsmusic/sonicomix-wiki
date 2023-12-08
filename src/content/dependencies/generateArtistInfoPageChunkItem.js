@@ -21,15 +21,7 @@ export default {
       validate: v => v.strictArrayOf(v.isHTML),
     },
 
-    rereleaseTooltip: {
-      type: 'html',
-      mutable: false,
-    },
-
-    firstReleaseTooltip: {
-      type: 'html',
-      mutable: false,
-    },
+    reissue: {type: 'boolean'},
 
     originDetails: {
       type: 'html',
@@ -40,33 +32,14 @@ export default {
   generate: (relations, slots, {html, language}) =>
     language.encapsulate('artistPage.creditList.entry', entryCapsule =>
       html.tag('li',
-        slots.rerelease && {class: 'rerelease'},
+        slots.reissue && {class: 'reissue'},
 
         html.tags([
           language.encapsulate(entryCapsule, workingCapsule => {
             const workingOptions = {entry: slots.content};
 
-            if (!html.isBlank(slots.rereleaseTooltip)) {
-              workingCapsule += '.rerelease';
-              workingOptions.rerelease =
-                relations.textWithTooltip.slots({
-                  attributes: {class: 'rerelease'},
-                  text: language.$(entryCapsule, 'rerelease.term'),
-                  tooltip: slots.rereleaseTooltip,
-                });
-
-              return language.$(workingCapsule, workingOptions);
-            }
-
-            if (!html.isBlank(slots.firstReleaseTooltip)) {
-              workingCapsule += '.firstRelease';
-              workingOptions.firstRelease =
-                relations.textWithTooltip.slots({
-                  attributes: {class: 'first-release'},
-                  text: language.$(entryCapsule, 'firstRelease.term'),
-                  tooltip: slots.firstReleaseTooltip,
-                });
-
+            if (slots.reissue) {
+              workingCapsule += '.reissue';
               return language.$(workingCapsule, workingOptions);
             }
 

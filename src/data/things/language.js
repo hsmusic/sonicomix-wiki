@@ -974,9 +974,12 @@ const countHelper = (stringKey, optionName = stringKey) =>
 Object.assign(Language.prototype, {
   countArtworks: countHelper('artworks'),
   countCommentaryEntries: countHelper('commentaryEntries', 'entries'),
+  countCharacters: countHelper('characters'),
   countContributions: countHelper('contributions'),
   countDays: countHelper('days'),
+  countIssues: countHelper('issues'),
   countMonths: countHelper('months'),
+  countStories: countHelper('stories'),
   countTimesFeatured: countHelper('timesFeatured'),
   countTimesReferenced: countHelper('timesReferenced'),
   countTimesUsed: countHelper('timesUsed'),

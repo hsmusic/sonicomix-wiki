@@ -3,6 +3,11 @@
 // Entries here may depend on entries in #composite/control-flow.
 //
 
+// Helper stuff, probably
+
+// TODO: From sonicomix. Needs better placement.
+// export {default as inputOptionalSort} from './inputOptionalSort.js';
+
 // Utilities which act on generic objects
 
 export {default as withPropertiesFromObject} from './withPropertiesFromObject.js';

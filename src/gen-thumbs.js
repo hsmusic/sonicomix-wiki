@@ -1228,6 +1228,15 @@ export function getExpectedImagePaths(mediaPath, {urls, wikiData}) {
       .filter(artwork => artwork.path)
       .map(artwork => fromRoot.to(...artwork.path)),
 
+    wikiData.issueData
+      .flatMap(issue =>
+        issue.covers.map(artwork =>
+          fromRoot.to('media.issueCover',
+            issue.publisher.directory,
+            issue.directory,
+            artwork.directory,
+            artwork.extension))),
+
     wikiData.wikiInfo.wikiWallpaperParts
       .filter(part => part.asset)
       .map(part =>

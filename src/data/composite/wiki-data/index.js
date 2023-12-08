@@ -24,6 +24,7 @@ export {default as withRecontextualizedContributionList} from './withRecontextua
 export {default as withRedatedContributionList} from './withRedatedContributionList.js';
 export {default as withResolvedAnnotatedReferenceList} from './withResolvedAnnotatedReferenceList.js';
 export {default as withResolvedContribs} from './withResolvedContribs.js';
+export {default as withResolvedCoverList} from './withResolvedCoverList.js';
 export {default as withResolvedReference} from './withResolvedReference.js';
 export {default as withResolvedReferenceList} from './withResolvedReferenceList.js';
 export {default as withReverseReferenceList} from './withReverseReferenceList.js';

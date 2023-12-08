@@ -1,5 +1,13 @@
+import {unique} from '#sugar';
+
 export default {
-  query: (_artist) => ({
+  query: (artist) => ({
+    allStories:
+      unique([
+        ...artist.storyStoryContributions,
+        ...artist.storyArtistContributions,
+      ].map(contrib => contrib.thing)),
+
     artworkContributions: [],
 
     hasGallery:
@@ -26,6 +34,9 @@ export default {
       artist.urls
         .map(url => relation('linkExternal', url)),
 
+    // storiesChunkedList:
+    //   relation('generateArtistInfoPageStoriesChunkedList', artist),
+
     artworksList:
       null,
 
@@ -41,6 +52,9 @@ export default {
   data: (query, artist) => ({
     name:
       artist.name,
+
+    totalStoryCount:
+      query.allStories.length,
   }),
 
   generate: (data, relations, {html, language}) =>
@@ -94,6 +108,30 @@ export default {
                       language.$(pageCapsule, 'commentaryList.title')),
                 ].filter(Boolean)),
             })),
+
+          /*
+          html.tags([
+            relations.contentHeading.clone()
+              .slots({
+                tag: 'h2',
+                attributes: {id: 'stories'},
+                title: language.$(pageCapsule, 'storyList.title'),
+              }),
+
+            html.tag('p',
+              {[html.onlyIfSiblings]: true},
+
+              language.$(pageCapsule, 'storyList.storiesContributedLine', {
+                artist:
+                  data.name,
+
+                stories:
+                  language.countStories(data.totalStoryCount, {unit: true}),
+              })),
+
+            relations.storiesChunkedList,
+          ]),
+          */
 
           html.tags([
             relations.contentHeading.clone()

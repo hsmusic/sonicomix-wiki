@@ -1,7 +1,9 @@
 export default {
-  relations: (_relation, _thing) => ({
+  relations: (relation, thing) => ({
     link:
-      null,
+      (thing.isIssueCover
+        ? relation('linkCover', thing)
+        : null),
   }),
 
   generate: (relations) =>

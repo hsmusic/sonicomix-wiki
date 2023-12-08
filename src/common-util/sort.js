@@ -407,3 +407,47 @@ export function sortContributionsChronologically(data, sortThings, {
 
   return data;
 }
+
+export function sortStoriesChronologically(data) {
+  const reduceOrOnly = (array, fn) =>
+    (array.length === 0
+      ? null
+   : array.length === 1
+      ? array[0]
+      : array.reduce(fn));
+
+  // Group stories by earliest issue...
+
+  const storyToEarliestIssue =
+    new Map(data.map(story => [
+      story,
+      reduceOrOnly(
+        story.featuredInIssues,
+        (a, b) => a.date > b.date ? a : b),
+    ]));
+
+  sortByDirectory(data, {
+    getDirectory: story =>
+      (storyToEarliestIssue.get(story)
+        ? storyToEarliestIssue.get(story).directory
+        : null),
+  });
+
+  // Sort by position in earliest issue...
+
+  sortByPositionInParent(data, {
+    getParent: story => storyToEarliestIssue.get(story),
+    getChildren: issue => (issue ? issue.featuredStories : []),
+  });
+
+  // ...and finally sort by date of earliest issue.
+
+  sortByDate(data, {
+    getDate: story =>
+      (storyToEarliestIssue.get(story)
+        ? storyToEarliestIssue.get(story).date
+        : null),
+  });
+
+  return data;
+}

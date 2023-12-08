@@ -29,6 +29,10 @@ localized:
     artist: 'artist/<>/'
     artistGallery: 'artist/<>/gallery/'
 
+    character: 'character/<>/'
+
+    issue: 'issue/<>/<>/'
+
     listingIndex: 'list/'
 
     listing: 'list/<>/'
@@ -37,7 +41,11 @@ localized:
 
     newsEntry: 'news/<>/'
 
+    publisher: 'publisher/<>/'
+
     staticPage: '<>/'
+
+    story: 'story/<>/<>/'
 
 # This gets automatically switched in place when working from
 # a baseDirectory, so it should never be referenced manually.
@@ -96,6 +104,9 @@ media:
   - *genericPaths
 
   - artistAvatar: 'artist-avatar/<>.<>'
+
+    # publisher, issue, cover, extension
+    issueCover: 'issue-art/<>/<>/<>.<>'
 
 thumb:
   prefix: 'thumb/'

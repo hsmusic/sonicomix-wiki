@@ -192,7 +192,27 @@ export function filterReferenceErrors(wikiData, {
 
   bindFind,
 }) {
-  const referenceSpec = [];
+  const referenceSpec = [
+    ['characterData', {
+      groupedCharacters: '_groupedCharacter',
+    }],
+
+    ['issueData', {
+      publisher: 'publisher',
+      featuredStories: 'story',
+    }],
+
+    ['issueCoverData', {
+      contribs: '_contrib',
+    }],
+
+    ['storyData', {
+      artContribs: '_contrib',
+      featuredCharacters: '_featuredCharacter',
+      publisher: 'publisher',
+      storyContribs: '_contrib',
+    }],
+  ];
 
   const boundFind = bindFind(wikiData, {mode: 'error'});
   const findArtistOrAlias = bindFindArtistOrAlias(boundFind);
@@ -262,6 +282,14 @@ export function filterReferenceErrors(wikiData, {
                 findFn = contribRef => findArtistOrAlias(contribRef.artist);
                 break;
 
+              case '_featuredCharacter':
+                findFn = ({who}) => boundFind.character(who);
+                break;
+
+              case '_groupedCharacter':
+                findFn = ({character}) => boundFind.character(character);
+                break;
+
               default:
                 findFn = boundFind[findFnKey];
                 break;
@@ -289,13 +317,15 @@ export function filterReferenceErrors(wikiData, {
 
             determineNewPropertyValue: {
               if (findFnKey === '_content') {
+                const message = `Errors in entry's artist references`;
+
                 filter(
                   value, {message: errorMessage},
                   decorateErrorWithIndex(refs =>
                     (refs.length === 1
                       ? findFn(refs[0])
                       : filterAggregate(
-                          refs, {message: `Errors in entry's artist references`},
+                          refs, {message},
                           decorateErrorWithIndex(findFn))
                             .aggregate
                             .close())));

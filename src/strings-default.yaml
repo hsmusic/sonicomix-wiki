@@ -77,6 +77,16 @@ count:
       many: ""
       other: "{ARTWORKS} artworks"
 
+  characters:
+    _: "{CHARACTERS}"
+    withUnit:
+      zero: ""
+      one: "{CHARACTERS} character"
+      two: ""
+      few: ""
+      many: ""
+      other: "{CHARACTERS} characters"
+
   commentaryEntries:
     _: "{ENTRIES}"
     withUnit:
@@ -97,25 +107,15 @@ count:
       many: ""
       other: "{CONTRIBUTIONS} contributions"
 
-  flashes:
-    _: "{FLASHES}"
+  issues:
+    _: "{ISSUES}"
     withUnit:
       zero: ""
-      one: "{FLASHES} flashes & games"
+      one: "{ISSUES} issue"
       two: ""
       few: ""
       many: ""
-      other: "{FLASHES} flashes & games"
-
-  tracks:
-    _: "{TRACKS}"
-    withUnit:
-      zero: ""
-      one: "{TRACKS} track"
-      two: ""
-      few: ""
-      many: ""
-      other: "{TRACKS} tracks"
+      other: "{ISSUES} issues"
 
   # Count more abstract stuff
 
@@ -138,6 +138,16 @@ count:
       few: ""
       many: ""
       other: "{MONTHS} months"
+
+  stories:
+    _: "{STORIES}"
+    withUnit:
+      zero: ""
+      one: "{STORIES} story"
+      two: ""
+      few: ""
+      many: ""
+      other: "{STORIES} stories"
 
   timesFeatured:
     _: "{TIMES_FEATURED}"
@@ -734,6 +744,11 @@ misc:
     squareBracketAnnotations: >-
       Mind parts marked in [square brackets]
 
+  featuredCharacterLink:
+    _: "{CHARACTER}"
+
+    withHow: "{CHARACTER} ({HOW})"
+
   # missingImage:
   #   Fallback text displayed in an image when it's sourced to a file
   #   that isn't available under the wiki's media directory. While it
@@ -1075,6 +1090,10 @@ artistPage:
 
   creditList:
 
+    issue:
+      _: "{ISSUE}"
+      withDate: "{ISSUE} ({DATE})"
+
     # entry:
     #   This section covers strings for all kinds of individual
     #   things which an artist has contributed to, and refers to the
@@ -1097,21 +1116,27 @@ artistPage:
 
       withArtists.withAnnotation: "{ENTRY} ({ANNOTATION}; with {ARTISTS})"
 
-      artwork.accent:
-        withLabel: >-
-          {LABEL}
+      reissue: "{ENTRY} (reissue)"
 
-        withAnnotation: >-
-          {ANNOTATION}
+      reissue.withContribution: "{ENTRY} (reissue; {CONTRIBUTION})"
 
-        withLabel.withAnnotation: >-
-          {LABEL}: {ANNOTATION}
+      story:
+        _: "{STORY}"
+
+        story: "story"
+        art: "art"
 
   artList:
     title: "Artworks"
 
   commentaryList:
     title: "Commentary"
+
+  storyList:
+    title: "Stories"
+
+    storiesContributedLine: >-
+      {ARTIST} has contributed to {STORIES} on this wiki.
 
   # viewArtGallery:
   #   This is shown twice on the page - once at almost the very top
@@ -1135,6 +1160,35 @@ artistGalleryPage:
 
   infoLine: >-
     Contributed to {COVER_ARTS}.
+
+characterPage:
+  title: "{CHARACTER}"
+
+  groupedUnderCharacters: >-
+    {CHARACTER} is grouped under {GROUPS}.
+
+  groupsCharacters:
+    title: "{GROUP} groups {CHARACTERS}:"
+    item:
+      _: "{CHARACTER}"
+      withAnnotation: "{CHARACTER} ({ANNOTATION})"
+
+  featuredInStories:
+    title: "{CHARACTER} is featured in {STORIES}:"
+    item:
+      _: "{STORY}"
+      withHow: "{STORY} ({HOW})"
+
+issuePage:
+  title: "{ISSUE}"
+  published: "Published {DATE} by {PUBLISHER}."
+
+  coverGallery:
+    coverBy: "Cover by {ARTISTS}."
+
+  storiesFeatured:
+    title: "Stories featured in this issue:"
+    item: "{STORY}"
 
 #
 # listingIndex:
@@ -1336,6 +1390,13 @@ newsEntryPage:
       _: "(→ {ENTRY})"
       withDate: "(→ {DATE} {ENTRY})"
 
+publisherPage:
+  title: "{PUBLISHER}"
+
+  publishedIssues:
+    title: "Published {ISSUES}:"
+    item: "({YEAR}) {ISSUE}"
+
 #
 # redirectPage:
 #   Static "placeholder" pages when redirecting a visitor from one
@@ -1347,3 +1408,18 @@ redirectPage:
 
   infoLine: >-
     This page has been moved to {TARGET}.
+
+storyPage:
+  title: "{STORY}"
+
+  featuredInIssues:
+    single: "Featured in {ISSUE}, published {DATE} by {PUBLISHER}."
+    listTitle: "Featured in issues published by {PUBLISHER}:"
+    listItem: "({DATE}) {ISSUE}"
+
+  storyBy: "Story by {ARTISTS}."
+  artBy: "Art by {ARTISTS}."
+
+  featuredCharacters:
+    title: "Characters featured in {STORY}:"
+    item: "{CHARACTER}"

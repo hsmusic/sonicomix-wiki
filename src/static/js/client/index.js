@@ -1,5 +1,6 @@
 import * as additionalNamesBoxModule from './additional-names-box.js';
 import * as artistExternalLinkTooltipModule from './artist-external-link-tooltip.js';
+import * as artworkGalleryModule from './artwork-gallery.js';
 import * as cssCompatibilityAssistantModule from './css-compatibility-assistant.js';
 import * as datetimestampTooltipModule from './datetimestamp-tooltip.js';
 import * as draggedLinkModule from './dragged-link.js';
@@ -21,6 +22,7 @@ import * as wikiSearchModule from './wiki-search.js';
 export const modules = [
   additionalNamesBoxModule,
   artistExternalLinkTooltipModule,
+  artworkGalleryModule,
   cssCompatibilityAssistantModule,
   datetimestampTooltipModule,
   draggedLinkModule,

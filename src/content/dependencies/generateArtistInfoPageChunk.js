@@ -3,7 +3,7 @@ import {empty} from '#sugar';
 export default {
   slots: {
     mode: {
-      validate: v => v.is(null),
+      validate: v => v.is('issue'),
     },
 
     id: {type: 'string'},
@@ -26,7 +26,7 @@ export default {
     durationApproximate: {type: 'boolean'},
   },
 
-  generate(slots, {html}) {
+  generate(slots, {html, language}) {
     let earliestDate = null;
     let latestDate = null;
     let onlyDate = null;
@@ -41,15 +41,28 @@ export default {
           .reduce((a, b) => a <= b ? b : a);
 
       if (+earliestDate === +latestDate) {
-        // eslint-disable-next-line no-unused-vars
         onlyDate = earliestDate;
       }
     }
 
     let accentedLink = null;
 
-    // eslint-disable-next-line no-empty
-    switch (slots.mode) {}
+    accent: {
+      switch (slots.mode) {
+        case 'issue': {
+          const options = {issue: slots.link};
+          const parts = ['artistPage.creditList.issue'];
+
+          if (onlyDate) {
+            parts.push('withDate');
+            options.date = language.formatDate(onlyDate);
+          }
+
+          accentedLink = language.formatString(...parts, options);
+          break;
+        }
+      }
+    }
 
     return html.tags([
       html.tag('dt',

@@ -8,6 +8,8 @@ import {input, V} from '#composite';
 import Thing from '#thing';
 import {parseArtistAliases, parseArtwork} from '#yaml';
 
+import {withFlattenedList, withPropertyFromList} from '#composite/data';
+
 import {
   sortArtworksChronologically,
   sortAlphabetically,
@@ -23,6 +25,7 @@ import {
   fileExtension,
   flag,
   name,
+  reverseReferenceList,
   soupyFind,
   soupyReverse,
   thing,
@@ -38,7 +41,7 @@ export class Artist extends Thing {
     'avatarArtwork', // from inline fields
   ];
 
-  static [Thing.getPropertyDescriptors] = () => ({
+  static [Thing.getPropertyDescriptors] = ({Cover, Issue, Story}) => ({
     // Update & expose
 
     name: name(V('Unnamed Artist')),
@@ -73,21 +76,17 @@ export class Artist extends Thing {
 
     isArtist: exposeConstant(V(true)),
 
-    artworkContributions: [
-      {
-        compute: (continuation) => continuation({
-          ['#contributions']: [],
-        }),
-      },
+    storyStoryContributions: reverseReferenceList({
+      reverse: soupyReverse.input('storyStoryContributionsBy'),
+    }),
 
-      {
-        dependencies: ['#contributions'],
-        compute: ({'#contributions': contributions}) =>
-          sortContributionsChronologically(
-            contributions,
-            sortArtworksChronologically),
-      },
-    ],
+    storyArtistContributions: reverseReferenceList({
+      reverse: soupyReverse.input('storyArtContributionsBy'),
+    }),
+
+    issueCoverContributions: reverseReferenceList({
+      reverse: soupyReverse.input('issueCoverContributionsBy'),
+    }),
   });
 
   static [Thing.getSerializeDescriptors] = ({

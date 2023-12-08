@@ -29,12 +29,12 @@ listingSpec.push({
   contentFunction: 'listArtistsByLatestContribution',
 });
 
-listingSpec.push({
-  directory: 'random',
-  stringsKey: 'other.randomPages',
-  contentFunction: 'listRandomPageLinks',
-  groupUnderOther: true,
-});
+// listingSpec.push({
+//   directory: 'random',
+//   stringsKey: 'other.randomPages',
+//   contentFunction: 'listRandomPageLinks',
+//   groupUnderOther: true,
+// });
 
 // Dunkass mock. Listings should be Things! In the fuuuuture!
 class Listing {
