@@ -1012,7 +1012,9 @@ export function compositeFrom(description) {
         (isBase
           ? ` (base):`
           : ` of ${steps.length}:`),
-        step]);
+        (step.flags?.compose
+          ? getCompositionName(step)
+          : step)]);
 
       const expose =
         (step.flags
@@ -1105,8 +1107,6 @@ export function compositeFrom(description) {
       debug(() => [
         `step #${i+1} - ${callingTransformForThisStep ? 'transform' : 'compute'}`,
         `with dependencies:`, filteredDependencies,
-        `selecting:`, selectDependencies,
-        `from available:`, filterableDependencies,
         ...callingTransformForThisStep ? [`from value:`, valueSoFar] : []]);
 
       let result;
