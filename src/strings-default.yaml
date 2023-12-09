@@ -685,149 +685,6 @@ homepage:
       viewRest: "(View rest of entry!)"
 
 #
-# albumSidebar:
-#   This sidebar is displayed on both the album and track info pages!
-#   It displays the groups that the album is from (each getting its
-#   own box on the album page, all conjoined in one box on the track
-#   page) and the list of tracks in the album, which can be sectioned
-#   similarly to normal track lists, but displays the range of tracks
-#   in each section rather than the section's duration.
-#
-albumSidebar:
-  trackList:
-    item: "{TRACK}"
-
-    # fallbackSectionName:
-    #   If an album's track list isn't sectioned, the track list here
-    #   will still have all the tracks grouped under a list that can
-    #   be toggled open and closed. This controls how that list gets
-    #   titled.
-
-    fallbackSectionName: "Track list"
-
-    # group:
-    #   "Group" is a misnomer - these are track sections. Some albums
-    #   don't use track numbers at all, and for these, the default
-    #   string will be used instead of group.withRange.
-
-    group:
-      _: "{GROUP}"
-      withRange: "{GROUP} ({RANGE})"
-
-  # groupBox:
-  #   This is the box for groups. Apart from the next and previous
-  #   links, it also gets "visit on" and the group's descripton
-  #   (up to a split).
-
-  groupBox:
-    title: "{GROUP}"
-    next: "Next: {ALBUM}"
-    previous: "Previous: {ALBUM}"
-
-#
-# albumPage:
-#
-#   Albums group together tracks and provide quick access to each of
-#   their pages, have release data (and sometimes credits) that are
-#   generally inherited by the album's tracks plus commentary and
-#   other goodies of their own, and are generally the main object on
-#   the wiki!
-#
-#   Most of the strings on the album info page are tracked under
-#   releaseInfo, so there isn't a lot here.
-#
-albumPage:
-  title: "{ALBUM}"
-
-  nav:
-    album: "{ALBUM}"
-    randomTrack: "Random Track"
-    gallery: "Gallery"
-    commentary: "Commentary"
-
-  socialEmbed:
-    heading: "{GROUP}"
-    title: "{ALBUM}"
-
-    # body:
-    #   These permutations are a bit awkward. "Tracks" is a counted
-    #   string, ex. "63 tracks".
-
-    body:
-      withDuration: "{DURATION}."
-      withTracks: "{TRACKS}."
-      withReleaseDate: Released {DATE}.
-      withDuration.withTracks: "{DURATION}, {TRACKS}."
-      withDuration.withReleaseDate: "{DURATION}. Released {DATE}."
-      withTracks.withReleaseDate: "{TRACKS}. Released {DATE}."
-      withDuration.withTracks.withReleaseDate: "{DURATION}, {TRACKS}. Released {DATE}."
-
-#
-# albumGalleryPage:
-#   Album galleries provide an alternative way to navigate the album,
-#   and put all its artwork - including for each track - into the
-#   spotlight. Apart from the main gallery grid (which usually lists
-#   each artwork's illustrators), this page also has a quick stats
-#   line about the album, and may display a message about all of the
-#   artworks if one applies.
-#
-albumGalleryPage:
-  title: "{ALBUM} - Gallery"
-
-  # statsLine:
-  #   Most albums have release dates, but not all. These strings
-  #   react accordingly.
-
-  statsLine: >-
-    {TRACKS} totaling {DURATION}.
-
-  statsLine.withDate: >-
-    {TRACKS} totaling {DURATION}. Released {DATE}.
-
-  # coverArtistsLine:
-  #   This is displayed if every track (which has artwork at all)
-  #   has the same illustration credits.
-
-  coverArtistsLine: >-
-    All track artwork by {ARTISTS}.
-
-  # noTrackArtworksLine:
-  #   This is displayed if none of the tracks on the album have any
-  #   artwork at all. Generally, this means the album gallery won't
-  #   be linked from the album's other pages, but it is possible to
-  #   end up on "stub galleries" using nav links on another gallery.
-
-  noTrackArtworksLine: >-
-    This album doesn't have any track artwork.
-
-#
-# albumCommentaryPage:
-#   The album commentary page is a more minimal layout that brings
-#   the commentary for the album, and each of its tracks, to the
-#   front. It's basically inspired by reading in a library, or by
-#   following along with an album's booklet or liner notes while
-#   playing it back on a treasured dinky CD player late at night.
-#
-albumCommentaryPage:
-  title: "{ALBUM} - Commentary"
-
-  nav:
-    album: "Album: {ALBUM}"
-
-  infoLine: >-
-    {WORDS} across {ENTRIES}.
-
-  entry:
-    title:
-      albumCommentary:
-        _: "{ALBUM}"
-        accent: "Listen on: {LISTENING_LINKS}"
-
-      trackCommentary:
-        _: "{TRACK}"
-        accent: "Listen on: {LISTENING_LINKS}"
-
-#
 # artistInfoPage:
 #   The artist info page is an artist's main home on the wiki, and
 #   automatically includes a full list of all the things they've
@@ -998,113 +855,6 @@ commentaryIndex:
     title: "Choose an album:"
     item: "{ALBUM} ({WORDS} across {ENTRIES})"
 
-#
-# flashIndex:
-#   The flash index page shows a very long grid including every flash
-#   on the wiki, sectioned with big headings for each act. It's also
-#   got jump links at the top to skip to a specific overarching
-#   section ("side") of flash acts.
-#
-flashIndex:
-  title: "Flashes & Games"
-
-#
-# flashSidebar:
-#   The flash sidebar is used on both the flash info and flash act
-#   gallery pages, and has two boxes - one showing all the flashes in
-#   the current flash act, and one showing all the flash acts on the
-#   wiki, sectioned by "side".
-#
-flashSidebar:
-  flashList:
-
-    # These two strings are the default ones used when a flash act
-    # doesn't specify a custom phrasing.
-    flashesInThisAct: "Flashes in this act"
-    entriesInThisSection: "Entries in this section"
-
-#
-# flashPage:
-#   The flash info page shows release information, links to check the
-#   flash out, and lists of contributors and featured tracks. Most of
-#   those strings are under releaseInfo, so there aren't a lot of
-#   strings here.
-#
-flashPage:
-  title: "{FLASH}"
-
-  nav:
-    flash: "{FLASH}"
-
-#
-# groupSidebar:
-#   The group sidebar is used on both the group info and group
-#   gallery pages, and is formed of just one box, showing all the
-#   groups on the wiki, sectioned by "category".
-#
-groupSidebar:
-  title: "Groups"
-
-  groupList:
-    category: "{CATEGORY}"
-    item: "{GROUP}"
-
-#
-# groupPage:
-#   This section represents strings common to multiple group pages.
-#
-groupPage:
-  nav:
-    group: "Group: {GROUP}"
-
-#
-# groupInfoPage:
-#   The group info page shows visiting links, the group's full
-#   description, and a list of albums from the group.
-#
-groupInfoPage:
-  title: "{GROUP}"
-
-  viewAlbumGallery:
-    _: "View {LINK}! Or browse the list:"
-    link: "album gallery"
-
-  # albumList:
-  #   Many albums are present under multiple groups, and these get an
-  #   accent indicating what other group is highest on the album's
-  #   list of groups.
-
-  albumList:
-    title: "Albums"
-
-    item:
-      _: >-
-        {ALBUM}
-
-      withYear: >-
-        {YEAR_ACCENT} {ALBUM}
-
-      withOtherGroup: >-
-        {ALBUM} {OTHER_GROUP_ACCENT}
-
-      withYear.withOtherGroup: >-
-        {YEAR_ACCENT} {ALBUM} {OTHER_GROUP_ACCENT}
-
-      yearAccent: "({YEAR})"
-      otherGroupAccent:  "(from {GROUP})"
-
-#
-# groupGalleryPage:
-#   The group gallery page shows a grid of all the albums from that
-#   group, each including the number of tracks and duration, as well
-#   as a stats line for the group as a whole, and a neat carousel, if
-#   pre-configured!
-#
-groupGalleryPage:
-  title: "{GROUP} - Gallery"
-
-  infoLine: >-
-    {TRACKS} across {ALBUMS}, totaling {TIME}.
 
 #
 # listingIndex:
@@ -1115,7 +865,7 @@ listingIndex:
   title: "Listings"
 
   infoLine: >-
-    {WIKI}: {TRACKS} across {ALBUMS}, totaling {DURATION}.
+    {WIKI}: (insert stats here).
 
   exploreList: >-
     Feel free to explore any of the listings linked below and in the sidebar!
@@ -1141,21 +891,13 @@ listingPage:
   #   these.
 
   target:
-    album: "Albums"
     artist: "Artists"
-    group: "Groups"
-    track: "Tracks"
-    tag: "Tags"
     other: "Other"
 
   # misc:
   #   Common, generic terminology across multiple listings.
 
-  misc:
-    trackContributors: "Track Contributors"
-    artContributors: "Art Contributors"
-    flashContributors: "Flash & Game Contributors"
-    artAndFlashContributors: "Art & Flash Contributors"
+  misc: {}
 
   # listingFor:
   #   Displays quick links to navigate to other listings for the
@@ -1175,63 +917,6 @@ listingPage:
   #   for the list of those links.
 
   skipToSection: "Skip to a section:"
-
-  listAlbums:
-
-    # listAlbums.byName:
-    #   Lists albums alphabetically without sorting or chunking by
-    #   any other criteria. Also displays the number of tracks for
-    #   each album.
-
-    byName:
-      title: "Albums - by Name"
-      title.short: "...by Name"
-      item: "{ALBUM} ({TRACKS})"
-
-    # listAlbums.byTracks:
-    #   Lists albums by number of tracks, most to least, or by name
-    #   alphabetically, if two albums have the same track count.
-    #   Albums without any tracks are totally excluded.
-
-    byTracks:
-      title: "Albums - by Tracks"
-      title.short: "...by Tracks"
-      item: "{ALBUM} ({TRACKS})"
-
-    # listAlbums.byDuration:
-    #   Lists albums by total duration of all tracks, longest to
-    #   shortest, falling back to an alphabetical sort if two albums
-    #   are the same duration. Albums with zero duration are totally
-    #   excluded.
-
-    byDuration:
-      title: "Albums - by Duration"
-      title.short: "...by Duration"
-      item: "{ALBUM} ({DURATION})"
-
-    # listAlbums.byDate:
-    #   Lists albums by release date, oldest to newest, falling back
-    #   to an alphabetical sort if two albums were released on the
-    #   same date. Dateless albums are totally excluded.
-
-    byDate:
-      title: "Albums - by Date"
-      title.short: "...by Date"
-      item: "{ALBUM} ({DATE})"
-
-    # listAlbums.byDateAdded:
-    #   Lists albums by the date they were added to the wiki, oldest
-    #   to newest, and chunks these by date, since albums are usually
-    #   added in bunches at a time. The albums in each chunk are
-    #   sorted alphabetically, and albums which are missing the
-    #   "Date Added" field are totally excluded.
-
-    byDateAdded:
-      title: "Albums - by Date Added to Wiki"
-      title.short: "...by Date Added to Wiki"
-      chunk:
-        title: "{DATE}"
-        item: "{ALBUM}"
 
   listArtists:
 
@@ -1258,10 +943,7 @@ listingPage:
       title.short: "...by Contributions"
       chunk:
         item: "{ARTIST} ({CONTRIBUTIONS})"
-        title:
-          trackContributors: "Contributed tracks:"
-          artContributors: "Contributed artworks:"
-          flashContributors: "Contributed to flashes & games:"
+        title: {}
 
     # listArtists.byCommentary:
     #   Lists artists by number of commentary entries, most to least,
@@ -1274,345 +956,7 @@ listingPage:
       title.short: "...by Commentary Entries"
       item: "{ARTIST} ({ENTRIES})"
 
-    # listArtists.byDuration:
-    #   Lists artists by total duration of the tracks which they're
-    #   credited on (as either artist or contributor), longest sum to
-    #   shortest, falling back alphabetically if two artists have
-    #   the same duration. Artists who haven't contributed any music,
-    #   or whose tracks all lack durations, are totally excluded.
-
-    byDuration:
-      title: "Artists - by Duration"
-      title.short: "...by Duration"
-      item: "{ARTIST} ({DURATION})"
-
-    # listArtists.byGroup:
-    #   Lists artists who have contributed to each of the main groups
-    #   of a wiki (its "Divide Track Lists By Groups" field), sorted
-    #   alphabetically. Artists who aren't credited for contributions
-    #   under each of the groups are exlcuded from the respective
-    #   list.
-
-    byGroup:
-      title: "Artists - by Group"
-      title.short: "...by Group"
-      item: "{ARTIST} ({CONTRIBUTIONS})"
-      chunk:
-        title: "Contributed to {GROUP}:"
-        item: "{ARTIST} ({CONTRIBUTIONS})"
-
-    # listArtists.byLatest:
-    #   Lists artists by the date of their latest contribution
-    #   overall, and chunks artists together by the album or flash
-    #   which that contribution belongs to. Within albums, each
-    #   artist is accented with the kind of contribution they made -
-    #   tracks, artworks, or both - and sorted so those of the same
-    #   sort of contribution are bunched together, then by name.
-    #   Artists who aren't credited for any dated contributions are
-    #   included at the bottom under a separate chunk.
-
-    byLatest:
-      title: "Artists - by Latest Contribution"
-      title.short: "...by Latest Contribution"
-      chunk:
-        title:
-          album: "{ALBUM} ({DATE})"
-          flash: "{FLASH} ({DATE})"
-          dateless: "These artists' contributions aren't dated:"
-        item:
-          _: "{ARTIST}"
-          tracks: "{ARTIST} (tracks)"
-          tracksAndArt: "{ARTIST} (tracks, art)"
-          art: "{ARTIST} (art)"
-
-  listGroups:
-
-    # listGroups.byName:
-    #   Lists groups alphabetically without sorting or chunking by
-    #   any other criteria. Also displays a link to each group's
-    #   gallery page.
-
-    byName:
-      title: "Groups - by Name"
-      title.short: "...by Name"
-      item: "{GROUP} ({GALLERY})"
-      item.gallery: "Gallery"
-
-    # listGroups.byCategory:
-    #   Lists groups directly reflecting the way they're sorted in
-    #   the wiki's groups.yaml data file, with no automatic sorting,
-    #   chunked (as sectioned in groups.yaml) by category. Also shows
-    #   a link to each group's gallery page.
-
-    byCategory:
-      title: "Groups - by Category"
-      title.short: "...by Category"
-
-      chunk:
-        title: "{CATEGORY}"
-        item: "{GROUP} ({GALLERY})"
-        item.gallery: "Gallery"
-
-    # listGroups.byAlbums:
-    #   Lists groups by number of belonging albums, most to least,
-    #   falling back alphabetically if two groups have the same
-    #   number of albums. Groups without any albums are totally
-    #   excluded.
-
-    byAlbums:
-      title: "Groups - by Albums"
-      title.short: "...by Albums"
-      item: "{GROUP} ({ALBUMS})"
-
-    # listGroups.byTracks:
-    #   Lists groups by number of tracks under each group's albums,
-    #   most to least, falling back to an alphabetical sort if two
-    #   groups have the same track counts. Groups without any tracks
-    #   are totally excluded.
-
-    byTracks:
-      title: "Groups - by Tracks"
-      title.short: "...by Tracks"
-      item: "{GROUP} ({TRACKS})"
-
-    # listGroups.byDuration:
-    #   Lists groups by sum of durations of all the tracks under each
-    #   of the group's albums, longest to shortest, falling back to
-    #   an alphabetical sort if two groups have the same duration.
-    #   Groups whose total duration is zero are totally excluded.
-
-    byDuration:
-      title: "Groups - by Duration"
-      title.short: "...by Duration"
-      item: "{GROUP} ({DURATION})"
-
-    # listGroups.byLatest:
-    #   List groups by release date of each group's most recent
-    #   album, most recent to longest ago, falling back to sorting
-    #   alphabetically if two groups' latest albums were released
-    #   on the same date. Groups which don't have any albums, or
-    #   whose albums are all dateless, are totally excluded.
-
-    byLatest:
-      title: "Groups - by Latest Album"
-      title.short: "...by Latest Album"
-      item: "{GROUP} ({DATE})"
-
-  listTracks:
-
-    # listTracks.byName:
-    #   List tracks alphabetically without sorting or chunking by
-    #   any other criteria.
-
-    byName:
-      title: "Tracks - by Name"
-      title.short: "...by Name"
-      item: "{TRACK}"
-
-    # listTracks.byAlbum:
-    #   List tracks chunked by the album they're from, retaining the
-    #   position each track occupies in its album, and sorting albums
-    #   from oldest to newest (or alphabetically, if two albums were
-    #   released on the same date). Dateless albums are included at
-    #   the bottom of the list. Custom "Date First Released" fields
-    #   on individual tracks are totally ignored.
-
-    byAlbum:
-      title: "Tracks - by Album"
-      title.short: "...by Album"
-
-      chunk:
-        title: "{ALBUM}"
-        item: "{TRACK}"
-
-    # listTracks.byDate:
-    #   List tracks according to their own release dates, which may
-    #   differ from that of the album via the "Date First Released"
-    #   field, oldest to newest, and chunked by album when multiple
-    #   tracks from one album were released on the same date. Track
-    #   order within a given album is preserved where possible.
-    #   Dateless albums are excluded, except for contained tracks
-    #   which have custom "Date First Released" fields.
-
-    byDate:
-      title: "Tracks - by Date"
-      title.short: "...by Date"
-
-      chunk:
-        title: "{ALBUM} ({DATE})"
-        item: "{TRACK}"
-        item.rerelease: "{TRACK} (re-release)"
-
-    # listTracks.byDuration:
-    #   List tracks by duration, longest to shortest, falling back to
-    #   an alphabetical sort if two tracks have the same duration.
-    #   Tracks which don't have any duration are totally excluded.
-
-    byDuration:
-      title: "Tracks - by Duration"
-      title.short: "...by Duration"
-      item: "{TRACK} ({DURATION})"
-
-    # listTracks.byDurationInAlbum:
-    #   List tracks chunked by the album they're from, then sorted
-    #   by duration, longest to shortest; albums are sorted by date,
-    #   oldest to newest, and both sorts fall back alphabetically.
-    #   Dateless albums are included at the bottom of the list.
-
-    byDurationInAlbum:
-      title: "Tracks - by Duration (in Album)"
-      title.short: "...by Duration (in Album)"
-
-      chunk:
-        title: "{ALBUM}"
-        item: "{TRACK} ({DURATION})"
-
-    # listTracks.byTimesReferenced:
-    #   List tracks by how many other tracks' reference lists each
-    #   appears in, most times referenced to fewest, falling back
-    #   alphabetically if two tracks have been referenced the same
-    #   number of times. Tracks that aren't referenced by any other
-    #   tracks are totally excluded from the list.
-
-    byTimesReferenced:
-      title: "Tracks - by Times Referenced"
-      title.short: "...by Times Referenced"
-      item: "{TRACK} ({TIMES_REFERENCED})"
-
-    # listTracks.inFlashes.byAlbum:
-    #   List tracks, chunked by album (which are sorted by date,
-    #   falling back alphabetically) and in their usual track order,
-    #   and display the list of flashes that eack track is featured
-    #   in. Tracks which aren't featured in any flashes are totally
-    #   excluded from the list.
-
-    inFlashes.byAlbum:
-      title: "Tracks - in Flashes & Games (by Album)"
-      title.short: "...in Flashes & Games (by Album)"
-
-      chunk:
-        title: "{ALBUM}"
-        item: "{TRACK} (in {FLASHES})"
-
-    # listTracks.inFlashes.byFlash:
-    #   List tracks, chunked by flash (which are sorted by date,
-    #   retaining their positions in a common act where applicable,
-    #   or else by the two acts' names) and sorted according to the
-    #   featured list of the flash, and display a link to the album
-    #   each track is contained in. Tracks which aren't featured in
-    #   any flashes are totally excluded from the list.
-
-    inFlashes.byFlash:
-      title: "Tracks - in Flashes & Games (by Flash)"
-      title.short: "...in Flashes & Games (by Flash)"
-
-      chunk:
-        title: "{FLASH}"
-        item: "{TRACK} (from {ALBUM})"
-
-    # listTracks.withLyrics:
-    #   List tracks, chunked by album (which are sorted by date,
-    #   falling back alphabetically) and in their usual track order,
-    #   displaying only tracks which have lyrics. The chunk titles
-    #   also display the date each album was released, and tracks'
-    #   own custom "Date First Released" fields are totally ignored.
-
-    withLyrics:
-      title: "Tracks - with Lyrics"
-      title.short: "...with Lyrics"
-
-      chunk:
-        title: "{ALBUM}"
-        title.withDate: "{ALBUM} ({DATE})"
-        item: "{TRACK}"
-
-    # listTracks.withSheetMusicFiles:
-    #   List tracks, chunked by album (which are sorted by date,
-    #   falling back alphabetically) and in their usual track order,
-    #   displaying only tracks which have sheet music files. The
-    #   chunk titles also display the date each album was released,
-    #   and tracks' own custom "Date First Released" fields are
-    #   totally ignored.
-
-    withSheetMusicFiles:
-      title: "Tracks - with Sheet Music Files"
-      title.short: "...with Sheet Music Files"
-
-      chunk:
-        title: "{ALBUM}"
-        title.withDate: "{ALBUM} ({DATE})"
-        item: "{TRACK}"
-
-    # listTracks.withMidiProjectFiles:
-    #   List tracks, chunked by album (which are sorted by date,
-    #   falling back alphabetically) and in their usual track order,
-    #   displaying only tracks which have MIDI & project files. The
-    #   chunk titles also display the date each album was released,
-    #   and tracks' own custom "Date First Released" fields are
-    #   totally ignored.
-
-    withMidiProjectFiles:
-      title: "Tracks - with MIDI & Project Files"
-      title.short: "...with MIDI & Project Files"
-
-      chunk:
-        title: "{ALBUM}"
-        title.withDate: "{ALBUM} ({DATE})"
-        item: "{TRACK}"
-
-  listTags:
-
-    # listTags.byName:
-    #   List art tags alphabetically without sorting or chunking by
-    #   any other criteria. Also displays the number of times each
-    #   art tag has been featured.
-
-    byName:
-      title: "Tags - by Name"
-      title.short: "...by Name"
-      item: "{TAG} ({TIMES_USED})"
-
-    # listTags.byUses:
-    #   List art tags by number of times used, falling back to an
-    #   alphabetical sort if two art tags have been featured the same
-    #   number of times. Art tags which haven't haven't been featured
-    #   at all yet are totally excluded from the list.
-
-    byUses:
-      title: "Tags - by Uses"
-      title.short: "...by Uses"
-      item: "{TAG} ({TIMES_USED})"
-
   other:
-
-    # other.allSheetMusic:
-    #   List all sheet music files, sectioned by album (which are
-    #   sorted by date, falling back alphabetically) and then by
-    #   track (which retain album ordering). If one "file" entry
-    #   contains multiple files, then it's displayed as an expandable
-    #   list, collapsed by default, accented with the number of
-    #   downloadable files.
-
-    allSheetMusic:
-      title: "All Sheet Music"
-      title.short: "All Sheet Music"
-      albumFiles: "Album sheet music:"
-
-      file:
-        _: "{TITLE}"
-        withMultipleFiles: "{TITLE} ({FILES})"
-
-    # other.midiProjectFiles:
-    #   Same as other.allSheetMusic, but for MIDI & project files.
-
-    allMidiProjectFiles:
-      title: "All MIDI/Project Files"
-      title.short: "All MIDI/Project Files"
-      albumFiles: "Album MIDI/project files:"
-
-      file:
-        _: "{TITLE}"
-        withMultipleFiles: "{TITLE} ({FILES})"
 
     # other.additionalFiles:
     #   Same as other.allSheetMusic, but for additional files.
@@ -1620,7 +964,6 @@ listingPage:
     allAdditionalFiles:
       title: "All Additional Files"
       title.short: "All Additional Files"
-      albumFiles: "Album additional files:"
 
       file:
         _: "{TITLE}"
@@ -1640,11 +983,7 @@ listingPage:
       chooseLinkLine:
         _: "{FROM_PART} {BROWSER_SUPPORT_PART}"
 
-        fromPart:
-          dividedByGroups: >-
-            Choose a link to go to a random page in that group or album!
-          notDividedByGroups: >-
-            Choose a link to go to a random page in that album!
+        fromPart: {}
 
         browserSupportPart: >-
           If your browser doesn't support relatively modern JavaScript
@@ -1670,30 +1009,7 @@ listingPage:
         title:
           misc: "Miscellaneous:"
 
-          # fromAlbum:
-          #   If the wiki hasn't got "Divide Track Lists By Groups"
-          #   set, all albums across the wiki are grouped in one
-          #   long chunk.
-
-          fromAlbum: "From an album:"
-
-          # fromGroup:
-          #   If the wiki does have "Divide Track Lists By Groups"
-          #   set, there's one chunk past Miscellaneous for each of
-          #   those groups, listing all the albums from that group,
-          #   each of which links to a random track from that album.
-
-          fromGroup:
-            _: "From {GROUP}:"
-
-            accent:
-              _: "({RANDOM_ALBUM}, {RANDOM_TRACK})"
-              randomAlbum: "Random Album"
-              randomTrack: "Random Track"
-
         item:
-          album: "{ALBUM}"
-
           randomArtist:
             _: "{MAIN_LINK} ({AT_LEAST_TWO_CONTRIBUTIONS})"
             mainLink: "Random Artist"
@@ -1746,52 +1062,3 @@ redirectPage:
 
   infoLine: >-
     This page has been moved to {TARGET}.
-
-#
-# tagPage:
-#   The tag gallery page displays all the artworks that a tag has
-#   been featured in, in one neat grid, with each artwork displaying
-#   its illustrators, as well as a short info line that indicates
-#   how many artworks the tag's part of.
-#
-tagPage:
-  title: "{TAG}"
-
-  nav:
-    tag: "Tag: {TAG}"
-
-  infoLine: >-
-    Appears in {COVER_ARTS}.
-
-#
-# trackPage:
-#
-#   The track info page is pretty much the most discrete and common
-#   chunk of information across the whole site, displaying info about
-#   the track like its release date, artists, cover illustrators,
-#   commentary, and more, as well as relational info, like the tracks
-#   it references and tracks which reference it, and flashes which
-#   it's been featured in. Tracks can also have extra related files,
-#   like sheet music and MIDI/project files.
-#
-#   Most of the details about tracks use strings that are defined
-#   under releaseInfo, so this section is a little sparse.
-#
-trackPage:
-  title: "{TRACK}"
-
-  nav:
-    random: "Random"
-
-    track:
-      _: "{TRACK}"
-      withNumber: "{NUMBER}. {TRACK}"
-
-  socialEmbed:
-    heading: "{ALBUM}"
-    title: "{TRACK}"
-
-    body:
-      withArtists.withCoverArtists: "By {ARTISTS}; art by {COVER_ARTISTS}."
-      withArtists: "By {ARTISTS}."
-      withCoverArtists: "Art by {COVER_ARTISTS}."

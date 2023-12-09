@@ -15,7 +15,7 @@ import Thing from './thing.js';
 export class WikiInfo extends Thing {
   static [Thing.friendlyName] = `Wiki Info`;
 
-  static [Thing.getPropertyDescriptors] = ({Group}) => ({
+  static [Thing.getPropertyDescriptors] = () => ({
     // Update & expose
 
     name: name('Unnamed Wiki'),
@@ -55,23 +55,8 @@ export class WikiInfo extends Thing {
       update: {validate: isURL},
     },
 
-    divideTrackListsByGroups: referenceList({
-      class: input.value(Group),
-      find: input.value(find.group),
-      data: 'groupData',
-    }),
-
     // Feature toggles
-    enableFlashesAndGames: flag(false),
     enableListings: flag(false),
     enableNews: flag(false),
-    enableArtTagUI: flag(false),
-    enableGroupUI: flag(false),
-
-    // Update only
-
-    groupData: wikiData({
-      class: input.value(Group),
-    }),
   });
 }

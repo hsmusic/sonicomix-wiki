@@ -1,23 +1,12 @@
-import {empty} from '#sugar';
-
 export default {
-  contentDependencies: ['image', 'linkArtTag'],
+  contentDependencies: ['image'],
   extraDependencies: ['html'],
 
-  relations(relation, artTags) {
+  relations(relation) {
     const relations = {};
 
     relations.image =
-      relation('image', artTags);
-
-    if (artTags) {
-      relations.tagLinks =
-        artTags
-          .filter(tag => !tag.isContentWarning)
-          .map(tag => relation('linkArtTag', tag));
-    } else {
-      relations.tagLinks = null;
-    }
+      relation('image');
 
     return relations;
   },
@@ -44,25 +33,16 @@ export default {
   generate(relations, slots, {html}) {
     switch (slots.mode) {
       case 'primary':
-        return html.tags([
-          relations.image.slots({
-            path: slots.path,
-            alt: slots.alt,
-            color: slots.color,
-            thumb: 'medium',
-            id: 'cover-art',
-            reveal: true,
-            link: true,
-            square: true,
-          }),
-
-          !empty(relations.tagLinks) &&
-            html.tag('ul', {class: 'image-details'},
-              relations.tagLinks
-                .map(tagLink =>
-                  html.tag('li',
-                    tagLink.slot('preferShortName', true)))),
-        ]);
+        return relations.image.slots({
+          path: slots.path,
+          alt: slots.alt,
+          color: slots.color,
+          thumb: 'medium',
+          id: 'cover-art',
+          reveal: true,
+          link: true,
+          square: true,
+        });
 
       case 'thumbnail':
         return relations.image.slots({

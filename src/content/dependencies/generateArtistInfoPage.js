@@ -1,60 +1,27 @@
-import {empty, unique} from '#sugar';
-import {getTotalDuration} from '#wiki-data';
+import {empty} from '#sugar';
 
 export default {
   contentDependencies: [
-    'generateArtistGroupContributionsInfo',
-    'generateArtistInfoPageArtworksChunkedList',
     'generateArtistInfoPageCommentaryChunkedList',
-    'generateArtistInfoPageFlashesChunkedList',
-    'generateArtistInfoPageTracksChunkedList',
     'generateArtistNavLinks',
     'generateContentHeading',
     'generateCoverArtwork',
     'generatePageLayout',
-    'linkAlbum',
     'linkArtistGallery',
     'linkExternal',
-    'linkGroup',
-    'linkTrack',
     'transformContent',
   ],
 
   extraDependencies: ['html', 'language', 'wikiData'],
 
-  sprawl({wikiInfo}) {
+  query() {
     return {
-      enableFlashesAndGames: wikiInfo.enableFlashesAndGames,
-    };
-  },
-
-  query(sprawl, artist) {
-    return {
-      // Even if an artist has served as both "artist" (compositional) and
-      // "contributor" (instruments, production, etc) on the same track, that
-      // track only counts as one unique contribution.
-      allTracks:
-        unique([...artist.tracksAsArtist, ...artist.tracksAsContributor]),
-
-      // Artworks are different, though. We intentionally duplicate album data
-      // objects when the artist has contributed some combination of cover art,
-      // wallpaper, and banner - these each count as a unique contribution.
-      allArtworks: [
-        ...artist.albumsAsCoverArtist,
-        ...artist.albumsAsWallpaperArtist,
-        ...artist.albumsAsBannerArtist,
-        ...artist.tracksAsCoverArtist,
-      ],
-
-      // Banners and wallpapers don't show up in the artist gallery page, only
-      // cover art.
       hasGallery:
-        !empty(artist.albumsAsCoverArtist) ||
-        !empty(artist.tracksAsCoverArtist),
+        false,
     };
   },
 
-  relations(relation, query, sprawl, artist) {
+  relations(relation, query, artist) {
     const relations = {};
     const sections = relations.sections = {};
 
@@ -81,33 +48,7 @@ export default {
           relation('linkExternal', url));
     }
 
-    if (!empty(query.allTracks)) {
-      const tracks = sections.tracks = {};
-      tracks.heading = relation('generateContentHeading');
-      tracks.list = relation('generateArtistInfoPageTracksChunkedList', artist);
-      tracks.groupInfo = relation('generateArtistGroupContributionsInfo', query.allTracks);
-    }
-
-    if (!empty(query.allArtworks)) {
-      const artworks = sections.artworks = {};
-      artworks.heading = relation('generateContentHeading');
-      artworks.list = relation('generateArtistInfoPageArtworksChunkedList', artist);
-      artworks.groupInfo =
-        relation('generateArtistGroupContributionsInfo', query.allArtworks);
-
-      if (query.hasGallery) {
-        artworks.artistGalleryLink =
-          relation('linkArtistGallery', artist);
-      }
-    }
-
-    if (sprawl.enableFlashesAndGames && !empty(artist.flashesAsContributor)) {
-      const flashes = sections.flashes = {};
-      flashes.heading = relation('generateContentHeading');
-      flashes.list = relation('generateArtistInfoPageFlashesChunkedList', artist);
-    }
-
-    if (!empty(artist.albumsAsCommentator) || !empty(artist.tracksAsCommentator)) {
+    if (!empty([])) {
       const commentary = sections.commentary = {};
       commentary.heading = relation('generateContentHeading');
       commentary.list = relation('generateArtistInfoPageCommentaryChunkedList', artist);
@@ -116,7 +57,7 @@ export default {
     return relations;
   },
 
-  data(query, sprawl, artist) {
+  data(query, artist) {
     const data = {};
 
     data.name = artist.name;
@@ -125,9 +66,6 @@ export default {
     if (artist.hasAvatar) {
       data.avatarFileExtension = artist.avatarFileExtension;
     }
-
-    data.totalTrackCount = query.allTracks.length;
-    data.totalDuration = getTotalDuration(query.allTracks, {originalReleasesOnly: true});
 
     return data;
   },
@@ -178,117 +116,17 @@ export default {
                 }),
               })),
 
-          (sec.tracks || sec.artworsk || sec.flashes || sec.commentary) &&
+          (sec.commentary) &&
             html.tag('p',
               language.$('misc.jumpTo.withLinks', {
                 links: language.formatUnitList(
                   [
-                    sec.tracks &&
-                      html.tag('a',
-                        {href: '#tracks'},
-                        language.$('artistPage.trackList.title')),
-
-                    sec.artworks &&
-                      html.tag('a',
-                        {href: '#art'},
-                        language.$('artistPage.artList.title')),
-
-                    sec.flashes &&
-                      html.tag('a',
-                        {href: '#flashes'},
-                        language.$('artistPage.flashList.title')),
-
                     sec.commentary &&
                       html.tag('a',
                         {href: '#commentary'},
                         language.$('artistPage.commentaryList.title')),
                   ].filter(Boolean)),
               })),
-
-          sec.tracks && [
-            sec.tracks.heading
-              .slots({
-                tag: 'h2',
-                id: 'tracks',
-                title: language.$('artistPage.trackList.title'),
-              }),
-
-            data.totalDuration > 0 &&
-              html.tag('p',
-                language.$('artistPage.contributedDurationLine', {
-                  artist: data.name,
-                  duration:
-                    language.formatDuration(data.totalDuration, {
-                      approximate: data.totalTrackCount > 1,
-                      unit: true,
-                    }),
-                })),
-
-            sec.tracks.list
-              .slots({
-                groupInfo: [
-                  sec.tracks.groupInfo
-                    .clone()
-                    .slots({
-                      title: language.$('artistPage.groupContributions.title.music'),
-                      showSortButton: true,
-                      sort: 'count',
-                      countUnit: 'tracks',
-                      visible: true,
-                    }),
-
-                  sec.tracks.groupInfo
-                    .clone()
-                    .slots({
-                      title: language.$('artistPage.groupContributions.title.music'),
-                      showSortButton: true,
-                      sort: 'duration',
-                      countUnit: 'tracks',
-                      visible: false,
-                    }),
-                ],
-              }),
-          ],
-
-          sec.artworks && [
-            sec.artworks.heading
-              .slots({
-                tag: 'h2',
-                id: 'art',
-                title: language.$('artistPage.artList.title'),
-              }),
-
-            sec.artworks.artistGalleryLink &&
-              html.tag('p',
-                language.$('artistPage.viewArtGallery.orBrowseList', {
-                  link: sec.artworks.artistGalleryLink.slots({
-                    content: language.$('artistPage.viewArtGallery.link'),
-                  }),
-                })),
-
-            sec.artworks.list
-              .slots({
-                groupInfo:
-                  sec.artworks.groupInfo
-                    .slots({
-                      title: language.$('artistPage.groupContributions.title.artworks'),
-                      showBothColumns: false,
-                      sort: 'count',
-                      countUnit: 'artworks',
-                    }),
-              }),
-          ],
-
-          sec.flashes && [
-            sec.flashes.heading
-              .slots({
-                tag: 'h2',
-                id: 'flashes',
-                title: language.$('artistPage.flashList.title'),
-              }),
-
-            sec.flashes.list,
-          ],
 
           sec.commentary && [
             sec.commentary.heading

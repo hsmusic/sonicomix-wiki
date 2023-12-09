@@ -137,33 +137,8 @@ function findHelper({
 }
 
 const find = {
-  album: findHelper({
-    referenceTypes: ['album', 'album-commentary', 'album-gallery'],
-  }),
-
   artist: findHelper({
     referenceTypes: ['artist', 'artist-gallery'],
-  }),
-
-  artTag: findHelper({
-    referenceTypes: ['tag'],
-
-    getMatchableNames: tag =>
-      (tag.isContentWarning
-        ? [`cw: ${tag.name}`]
-        : [tag.name]),
-  }),
-
-  flash: findHelper({
-    referenceTypes: ['flash'],
-  }),
-
-  flashAct: findHelper({
-    referenceTypes: ['flash-act'],
-  }),
-
-  group: findHelper({
-    referenceTypes: ['group', 'group-gallery'],
   }),
 
   listing: findHelper({
@@ -177,31 +152,6 @@ const find = {
   staticPage: findHelper({
     referenceTypes: ['static'],
   }),
-
-  track: findHelper({
-    referenceTypes: ['track'],
-
-    getMatchableNames: track =>
-      (track.alwaysReferenceByDirectory
-        ? []
-        : [track.name]),
-  }),
-
-  trackOriginalReleasesOnly: findHelper({
-    referenceTypes: ['track'],
-
-    include: track =>
-      !CacheableObject.getUpdateValue(track, 'originalReleaseTrack'),
-
-    // It's still necessary to check alwaysReferenceByDirectory here, since it
-    // may be set manually (with the `Always Reference By Directory` field), and
-    // these shouldn't be matched by name (as per usual). See the definition for
-    // that property for more information.
-    getMatchableNames: track =>
-      (track.alwaysReferenceByDirectory
-        ? []
-        : [track.name]),
-  }),
 };
 
 export default find;
@@ -214,17 +164,10 @@ export default find;
 export function bindFind(wikiData, opts1) {
   return Object.fromEntries(
     Object.entries({
-      album: 'albumData',
       artist: 'artistData',
-      artTag: 'artTagData',
-      flash: 'flashData',
-      flashAct: 'flashActData',
-      group: 'groupData',
       listing: 'listingSpec',
       newsEntry: 'newsData',
       staticPage: 'staticPageData',
-      track: 'trackData',
-      trackOriginalReleasesOnly: 'trackData',
     }).map(([key, value]) => {
       const findFn = find[key];
       const thingData = wikiData[value];

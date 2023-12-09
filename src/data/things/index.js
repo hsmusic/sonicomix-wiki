@@ -8,31 +8,21 @@ import {openAggregate, showAggregate} from '#sugar';
 
 import Thing from './thing.js';
 
-import * as albumClasses from './album.js';
-import * as artTagClasses from './art-tag.js';
 import * as artistClasses from './artist.js';
-import * as flashClasses from './flash.js';
-import * as groupClasses from './group.js';
 import * as homepageLayoutClasses from './homepage-layout.js';
 import * as languageClasses from './language.js';
 import * as newsEntryClasses from './news-entry.js';
 import * as staticPageClasses from './static-page.js';
-import * as trackClasses from './track.js';
 import * as wikiInfoClasses from './wiki-info.js';
 
 export {default as Thing} from './thing.js';
 
 const allClassLists = {
-  'album.js': albumClasses,
-  'art-tag.js': artTagClasses,
   'artist.js': artistClasses,
-  'flash.js': flashClasses,
-  'group.js': groupClasses,
   'homepage-layout.js': homepageLayoutClasses,
   'language.js': languageClasses,
   'news-entry.js': newsEntryClasses,
   'static-page.js': staticPageClasses,
-  'track.js': trackClasses,
   'wiki-info.js': wikiInfoClasses,
 };
 

@@ -23,10 +23,7 @@ export default {
     relations.artistInfoLink =
       relation('linkArtist', artist);
 
-    if (
-      !empty(artist.albumsAsCoverArtist) ||
-      !empty(artist.tracksAsCoverArtist)
-    ) {
+    if (!empty([])) {
       relations.artistGalleryLink =
         relation('linkArtistGallery', artist);
     }

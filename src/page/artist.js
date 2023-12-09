@@ -9,8 +9,7 @@ export function targets({wikiData}) {
 
 export function pathsForTarget(artist) {
   const hasGalleryPage =
-    !empty(artist.tracksAsCoverArtist) ||
-    !empty(artist.albumsAsCoverArtist);
+    false;
 
   return [
     {

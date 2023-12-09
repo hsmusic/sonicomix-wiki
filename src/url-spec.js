@@ -34,15 +34,6 @@ const urlSpec = {
 
       commentaryIndex: 'commentary/',
 
-      flashIndex: 'flash/',
-
-      flash: 'flash/<>/',
-
-      flashActGallery: 'flash-act/<>/',
-
-      groupInfo: 'group/<>/',
-      groupGallery: 'group/<>/gallery/',
-
       listingIndex: 'list/',
 
       listing: 'list/<>/',
@@ -52,10 +43,6 @@ const urlSpec = {
       newsEntry: 'news/<>/',
 
       staticPage: '<>/',
-
-      tag: 'tag/<>/',
-
-      track: 'track/<>/',
     },
   },
 
@@ -81,16 +68,7 @@ const urlSpec = {
       root: '',
       path: '<>',
 
-      albumAdditionalFile: 'album-additional/<>/<>',
-      albumBanner: 'album-art/<>/banner.<>',
-      albumCover: 'album-art/<>/cover.<>',
-      albumWallpaper: 'album-art/<>/bg.<>',
-
       artistAvatar: 'artist-avatar/<>.<>',
-
-      flashArt: 'flash-art/<>.<>',
-
-      trackCover: 'album-art/<>/<>.<>',
     },
   },
 

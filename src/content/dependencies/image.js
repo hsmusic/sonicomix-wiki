@@ -21,17 +21,10 @@ export default {
       relation('generateColorStyleAttribute'),
   }),
 
-  data(artTags) {
+  data() {
     const data = {};
 
-    if (artTags) {
-      data.contentWarnings =
-        artTags
-          .filter(tag => tag.isContentWarning)
-          .map(tag => tag.name);
-    } else {
-      data.contentWarnings = null;
-    }
+    data.contentWarnings = [];
 
     return data;
   },

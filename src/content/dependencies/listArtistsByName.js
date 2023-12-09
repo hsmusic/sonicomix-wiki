@@ -2,7 +2,7 @@ import {stitchArrays} from '#sugar';
 import {getArtistNumContributions, sortAlphabetically} from '#wiki-data';
 
 export default {
-  contentDependencies: ['generateListingPage', 'linkArtist', 'linkGroup'],
+  contentDependencies: ['generateListingPage', 'linkArtist'],
   extraDependencies: ['language', 'wikiData'],
 
   sprawl: ({artistData, wikiInfo}) =>

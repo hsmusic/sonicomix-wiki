@@ -12,9 +12,7 @@ export default {
   query({artistData}, spec) {
     const artists = sortAlphabetically(artistData.slice());
     const counts =
-      artists.map(artist =>
-        artist.tracksAsCommentator.length +
-        artist.albumsAsCommentator.length);
+      artists.map(() => 0);
 
     filterByCount(artists, counts);
     sortByCount(artists, counts, {greatestFirst: true});

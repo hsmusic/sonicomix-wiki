@@ -1,4 +1,4 @@
-import {empty, stitchArrays, unique} from '#sugar';
+import {empty, stitchArrays} from '#sugar';
 
 import {
   filterByCount,
@@ -11,17 +11,15 @@ export default {
   contentDependencies: ['generateListingPage', 'linkArtist'],
   extraDependencies: ['html', 'language', 'wikiData'],
 
-  sprawl({artistData, wikiInfo}) {
+  sprawl({artistData}) {
     return {
       artistData,
-      enableFlashesAndGames: wikiInfo.enableFlashesAndGames,
     };
   },
 
   query(sprawl, spec) {
     const query = {
       spec,
-      enableFlashesAndGames: sprawl.enableFlashesAndGames,
     };
 
     const queryContributionInfo = (artistsKey, countsKey, fn) => {
@@ -35,32 +33,6 @@ export default {
       query[countsKey] = counts;
     };
 
-    queryContributionInfo(
-      'artistsByTrackContributions',
-      'countsByTrackContributions',
-      artist =>
-        unique([
-          ...artist.tracksAsContributor,
-          ...artist.tracksAsArtist,
-        ]).length);
-
-    queryContributionInfo(
-      'artistsByArtworkContributions',
-      'countsByArtworkContributions',
-      artist =>
-        artist.tracksAsCoverArtist.length +
-        artist.albumsAsCoverArtist.length +
-        artist.albumsAsWallpaperArtist.length +
-        artist.albumsAsBannerArtist.length);
-
-    if (sprawl.enableFlashesAndGames) {
-      queryContributionInfo(
-        'artistsByFlashContributions',
-        'countsByFlashContributions',
-        artist =>
-          artist.flashesAsContributor.length);
-    }
-
     return query;
   },
 
@@ -70,54 +42,23 @@ export default {
     relations.page =
       relation('generateListingPage', query.spec);
 
-    relations.artistLinksByTrackContributions =
-      query.artistsByTrackContributions
-        .map(artist => relation('linkArtist', artist));
-
-    relations.artistLinksByArtworkContributions =
-      query.artistsByArtworkContributions
-        .map(artist => relation('linkArtist', artist));
-
-    if (query.enableFlashesAndGames) {
-      relations.artistLinksByFlashContributions =
-        query.artistsByFlashContributions
-          .map(artist => relation('linkArtist', artist));
-    }
-
     return relations;
   },
 
-  data(query) {
+  data() {
     const data = {};
-
-    data.enableFlashesAndGames = query.enableFlashesAndGames;
-
-    data.countsByTrackContributions = query.countsByTrackContributions;
-    data.countsByArtworkContributions = query.countsByArtworkContributions;
-
-    if (query.enableFlashesAndGames) {
-      data.countsByFlashContributions = query.countsByFlashContributions;
-    }
 
     return data;
   },
 
   generate(data, relations, {language}) {
-    const listChunkIDs = ['tracks', 'artworks', 'flashes'];
-    const listTitleStringsKeys = ['trackContributors', 'artContributors', 'flashContributors'];
-    const listCountFunctions = ['countTracks', 'countArtworks', 'countFlashes'];
+    const listChunkIDs = [];
+    const listTitleStringsKeys = [];
+    const listCountFunctions = [];
 
-    const listArtistLinks = [
-      relations.artistLinksByTrackContributions,
-      relations.artistLinksByArtworkContributions,
-      relations.artistLinksByFlashContributions,
-    ];
+    const listArtistLinks = [];
 
-    const listArtistCounts = [
-      data.countsByTrackContributions,
-      data.countsByArtworkContributions,
-      data.countsByFlashContributions,
-    ];
+    const listArtistCounts = [];
 
     filterMultipleArrays(
       listChunkIDs,

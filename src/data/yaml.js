@@ -46,13 +46,10 @@ function inspect(value, opts = {}) {
 
 export const ART_TAG_DATA_FILE = 'tags.yaml';
 export const ARTIST_DATA_FILE = 'artists.yaml';
-export const FLASH_DATA_FILE = 'flashes.yaml';
-export const GROUP_DATA_FILE = 'groups.yaml';
 export const HOMEPAGE_LAYOUT_DATA_FILE = 'homepage.yaml';
 export const NEWS_DATA_FILE = 'news.yaml';
 export const WIKI_INFO_FILE = 'wiki-info.yaml';
 
-export const DATA_ALBUM_DIRECTORY = 'album';
 export const DATA_STATIC_PAGE_DIRECTORY = 'static-page';
 
 // --> Document processing functions
@@ -391,160 +388,6 @@ export class SkippedFieldsSummaryError extends Error {
   }
 }
 
-export const processAlbumDocument = makeProcessDocument(T.Album, {
-  fieldTransformations: {
-    'Artists': parseContributors,
-    'Cover Artists': parseContributors,
-    'Default Track Cover Artists': parseContributors,
-    'Wallpaper Artists': parseContributors,
-    'Banner Artists': parseContributors,
-
-    'Date': (value) => new Date(value),
-    'Date Added': (value) => new Date(value),
-    'Cover Art Date': (value) => new Date(value),
-    'Default Track Cover Art Date': (value) => new Date(value),
-
-    'Banner Dimensions': parseDimensions,
-
-    'Additional Files': parseAdditionalFiles,
-  },
-
-  propertyFieldMapping: {
-    name: 'Album',
-    directory: 'Directory',
-    date: 'Date',
-    color: 'Color',
-    urls: 'URLs',
-
-    hasTrackNumbers: 'Has Track Numbers',
-    isListedOnHomepage: 'Listed on Homepage',
-    isListedInGalleries: 'Listed in Galleries',
-
-    coverArtDate: 'Cover Art Date',
-    trackArtDate: 'Default Track Cover Art Date',
-    dateAddedToWiki: 'Date Added',
-
-    coverArtFileExtension: 'Cover Art File Extension',
-    trackCoverArtFileExtension: 'Track Art File Extension',
-
-    wallpaperArtistContribs: 'Wallpaper Artists',
-    wallpaperStyle: 'Wallpaper Style',
-    wallpaperFileExtension: 'Wallpaper File Extension',
-
-    bannerArtistContribs: 'Banner Artists',
-    bannerStyle: 'Banner Style',
-    bannerFileExtension: 'Banner File Extension',
-    bannerDimensions: 'Banner Dimensions',
-
-    commentary: 'Commentary',
-    additionalFiles: 'Additional Files',
-
-    artistContribs: 'Artists',
-    coverArtistContribs: 'Cover Artists',
-    trackCoverArtistContribs: 'Default Track Cover Artists',
-    groups: 'Groups',
-    artTags: 'Art Tags',
-  },
-});
-
-export const processTrackSectionDocument = makeProcessDocument(T.TrackSectionHelper, {
-  fieldTransformations: {
-    'Date Originally Released': (value) => new Date(value),
-  },
-
-  propertyFieldMapping: {
-    name: 'Section',
-    color: 'Color',
-    dateOriginallyReleased: 'Date Originally Released',
-  },
-});
-
-export const processTrackDocument = makeProcessDocument(T.Track, {
-  fieldTransformations: {
-    'Additional Names': parseAdditionalNames,
-    'Duration': parseDuration,
-
-    'Date First Released': (value) => new Date(value),
-    'Cover Art Date': (value) => new Date(value),
-    'Has Cover Art': (value) =>
-      (value === true ? false :
-       value === false ? true :
-       value),
-
-    'Artists': parseContributors,
-    'Contributors': parseContributors,
-    'Cover Artists': parseContributors,
-
-    'Additional Files': parseAdditionalFiles,
-    'Sheet Music Files': parseAdditionalFiles,
-    'MIDI Project Files': parseAdditionalFiles,
-  },
-
-  propertyFieldMapping: {
-    name: 'Track',
-    directory: 'Directory',
-    additionalNames: 'Additional Names',
-    duration: 'Duration',
-    color: 'Color',
-    urls: 'URLs',
-
-    dateFirstReleased: 'Date First Released',
-    coverArtDate: 'Cover Art Date',
-    coverArtFileExtension: 'Cover Art File Extension',
-    disableUniqueCoverArt: 'Has Cover Art', // This gets transformed to flip true/false.
-
-    alwaysReferenceByDirectory: 'Always Reference By Directory',
-
-    lyrics: 'Lyrics',
-    commentary: 'Commentary',
-    additionalFiles: 'Additional Files',
-    sheetMusicFiles: 'Sheet Music Files',
-    midiProjectFiles: 'MIDI Project Files',
-
-    originalReleaseTrack: 'Originally Released As',
-    referencedTracks: 'Referenced Tracks',
-    sampledTracks: 'Sampled Tracks',
-    artistContribs: 'Artists',
-    contributorContribs: 'Contributors',
-    coverArtistContribs: 'Cover Artists',
-    artTags: 'Art Tags',
-  },
-
-  invalidFieldCombinations: [
-    {message: `Re-releases inherit references from the original`, fields: [
-      'Originally Released As',
-      'Referenced Tracks',
-    ]},
-
-    {message: `Re-releases inherit samples from the original`, fields: [
-      'Originally Released As',
-      'Sampled Tracks',
-    ]},
-
-    {message: `Re-releases inherit artists from the original`, fields: [
-      'Originally Released As',
-      'Artists',
-    ]},
-
-    {message: `Re-releases inherit contributors from the original`, fields: [
-      'Originally Released As',
-      'Contributors',
-    ]},
-
-    {
-      message: ({'Has Cover Art': hasCoverArt}) =>
-        (hasCoverArt
-          ? `"Has Cover Art: true" is inferred from cover artist credits`
-          : `Tracks without cover art must not have cover artist credits`),
-
-      fields: [
-        'Has Cover Art',
-        'Cover Artists',
-      ],
-    },
-  ],
-});
-
 export const processArtistDocument = makeProcessDocument(T.Artist, {
   propertyFieldMapping: {
     name: 'Artist',
@@ -561,41 +404,6 @@ export const processArtistDocument = makeProcessDocument(T.Artist, {
   ignoredFields: ['Dead URLs'],
 });
 
-export const processFlashDocument = makeProcessDocument(T.Flash, {
-  fieldTransformations: {
-    'Date': (value) => new Date(value),
-
-    'Contributors': parseContributors,
-  },
-
-  propertyFieldMapping: {
-    name: 'Flash',
-    directory: 'Directory',
-    page: 'Page',
-    color: 'Color',
-    urls: 'URLs',
-
-    date: 'Date',
-    coverArtFileExtension: 'Cover Art File Extension',
-
-    featuredTracks: 'Featured Tracks',
-    contributorContribs: 'Contributors',
-  },
-});
-
-export const processFlashActDocument = makeProcessDocument(T.FlashAct, {
-  propertyFieldMapping: {
-    name: 'Act',
-    directory: 'Directory',
-
-    color: 'Color',
-    listTerminology: 'List Terminology',
-
-    jump: 'Jump',
-    jumpColor: 'Jump Color',
-  },
-});
-
 export const processNewsEntryDocument = makeProcessDocument(T.NewsEntry, {
   fieldTransformations: {
     'Date': (value) => new Date(value),
@@ -606,35 +414,6 @@ export const processNewsEntryDocument = makeProcessDocument(T.NewsEntry, {
     directory: 'Directory',
     date: 'Date',
     content: 'Content',
-  },
-});
-
-export const processArtTagDocument = makeProcessDocument(T.ArtTag, {
-  propertyFieldMapping: {
-    name: 'Tag',
-    nameShort: 'Short Name',
-    directory: 'Directory',
-
-    color: 'Color',
-    isContentWarning: 'Is CW',
-  },
-});
-
-export const processGroupDocument = makeProcessDocument(T.Group, {
-  propertyFieldMapping: {
-    name: 'Group',
-    directory: 'Directory',
-    description: 'Description',
-    urls: 'URLs',
-
-    featuredAlbums: 'Featured Albums',
-  },
-});
-
-export const processGroupCategoryDocument = makeProcessDocument(T.GroupCategory, {
-  propertyFieldMapping: {
-    name: 'Category',
-    color: 'Color',
   },
 });
 
@@ -659,12 +438,8 @@ export const processWikiInfoDocument = makeProcessDocument(T.WikiInfo, {
     footerContent: 'Footer Content',
     defaultLanguage: 'Default Language',
     canonicalBase: 'Canonical Base',
-    divideTrackListsByGroups: 'Divide Track Lists By Groups',
-    enableFlashesAndGames: 'Enable Flashes & Games',
     enableListings: 'Enable Listings',
     enableNews: 'Enable News',
-    enableArtTagUI: 'Enable Art Tag UI',
-    enableGroupUI: 'Enable Group UI',
   },
 });
 
@@ -690,17 +465,7 @@ export function makeProcessHomepageLayoutRowDocument(rowClass, spec) {
   });
 }
 
-export const homepageLayoutRowTypeProcessMapping = {
-  albums: makeProcessHomepageLayoutRowDocument(T.HomepageLayoutAlbumsRow, {
-    propertyFieldMapping: {
-      displayStyle: 'Display Style',
-      sourceGroup: 'Group',
-      countAlbumsFromGroup: 'Count',
-      sourceAlbums: 'Albums',
-      actionLinks: 'Actions',
-    },
-  }),
-};
+export const homepageLayoutRowTypeProcessMapping = {};
 
 export function processHomepageLayoutRowDocument(document) {
   const type = document['Type'];
@@ -908,85 +673,6 @@ export const dataSteps = [
   },
 
   {
-    title: `Process album files`,
-
-    files: dataPath =>
-      traverse(path.join(dataPath, DATA_ALBUM_DIRECTORY), {
-        filterFile: name => path.extname(name) === '.yaml',
-        prefixPath: DATA_ALBUM_DIRECTORY,
-      }),
-
-    documentMode: documentModes.headerAndEntries,
-    processHeaderDocument: processAlbumDocument,
-    processEntryDocument(document) {
-      return 'Section' in document
-        ? processTrackSectionDocument(document)
-        : processTrackDocument(document);
-    },
-
-    save(results) {
-      const albumData = [];
-      const trackData = [];
-
-      for (const {header: album, entries} of results) {
-        // We can't mutate an array once it's set as a property value,
-        // so prepare the track sections that will show up in a track list
-        // all the way before actually applying them. (It's okay to mutate
-        // an individual section before applying it, since those are just
-        // generic objects; they aren't Things in and of themselves.)
-        const trackSections = [];
-        const ownTrackData = [];
-
-        let currentTrackSection = {
-          name: `Default Track Section`,
-          isDefaultTrackSection: true,
-          tracks: [],
-        };
-
-        const albumRef = Thing.getReference(album);
-
-        const closeCurrentTrackSection = () => {
-          if (!empty(currentTrackSection.tracks)) {
-            trackSections.push(currentTrackSection);
-          }
-        };
-
-        for (const entry of entries) {
-          if (entry instanceof T.TrackSectionHelper) {
-            closeCurrentTrackSection();
-
-            currentTrackSection = {
-              name: entry.name,
-              color: entry.color,
-              dateOriginallyReleased: entry.dateOriginallyReleased,
-              isDefaultTrackSection: false,
-              tracks: [],
-            };
-
-            continue;
-          }
-
-          trackData.push(entry);
-
-          entry.dataSourceAlbum = albumRef;
-
-          ownTrackData.push(entry);
-          currentTrackSection.tracks.push(Thing.getReference(entry));
-        }
-
-        closeCurrentTrackSection();
-
-        albumData.push(album);
-
-        album.trackSections = trackSections;
-        album.ownTrackData = ownTrackData;
-      }
-
-      return {albumData, trackData};
-    },
-  },
-
-  {
     title: `Process artists file`,
     file: ARTIST_DATA_FILE,
 
@@ -1009,93 +695,6 @@ export const dataSteps = [
       });
 
       return {artistData, artistAliasData};
-    },
-  },
-
-  // TODO: WD.wikiInfo.enableFlashesAndGames &&
-  {
-    title: `Process flashes file`,
-    file: FLASH_DATA_FILE,
-
-    documentMode: documentModes.allInOne,
-    processDocument(document) {
-      return 'Act' in document
-        ? processFlashActDocument(document)
-        : processFlashDocument(document);
-    },
-
-    save(results) {
-      let flashAct;
-      let flashRefs = [];
-
-      if (results[0] && !(results[0] instanceof T.FlashAct)) {
-        throw new Error(`Expected an act at top of flash data file`);
-      }
-
-      for (const thing of results) {
-        if (thing instanceof T.FlashAct) {
-          if (flashAct) {
-            Object.assign(flashAct, {flashes: flashRefs});
-          }
-
-          flashAct = thing;
-          flashRefs = [];
-        } else {
-          flashRefs.push(Thing.getReference(thing));
-        }
-      }
-
-      if (flashAct) {
-        Object.assign(flashAct, {flashes: flashRefs});
-      }
-
-      const flashData = results.filter((x) => x instanceof T.Flash);
-      const flashActData = results.filter((x) => x instanceof T.FlashAct);
-
-      return {flashData, flashActData};
-    },
-  },
-
-  {
-    title: `Process groups file`,
-    file: GROUP_DATA_FILE,
-
-    documentMode: documentModes.allInOne,
-    processDocument(document) {
-      return 'Category' in document
-        ? processGroupCategoryDocument(document)
-        : processGroupDocument(document);
-    },
-
-    save(results) {
-      let groupCategory;
-      let groupRefs = [];
-
-      if (results[0] && !(results[0] instanceof T.GroupCategory)) {
-        throw new Error(`Expected a category at top of group data file`);
-      }
-
-      for (const thing of results) {
-        if (thing instanceof T.GroupCategory) {
-          if (groupCategory) {
-            Object.assign(groupCategory, {groups: groupRefs});
-          }
-
-          groupCategory = thing;
-          groupRefs = [];
-        } else {
-          groupRefs.push(Thing.getReference(thing));
-        }
-      }
-
-      if (groupCategory) {
-        Object.assign(groupCategory, {groups: groupRefs});
-      }
-
-      const groupData = results.filter((x) => x instanceof T.Group);
-      const groupCategoryData = results.filter((x) => x instanceof T.GroupCategory);
-
-      return {groupData, groupCategoryData};
     },
   },
 
@@ -1135,20 +734,6 @@ export const dataSteps = [
       newsData.reverse();
 
       return {newsData};
-    },
-  },
-
-  {
-    title: `Process art tags file`,
-    file: ART_TAG_DATA_FILE,
-
-    documentMode: documentModes.allInOne,
-    processDocument: processArtTagDocument,
-
-    save(artTagData) {
-      sortAlphabetically(artTagData);
-
-      return {artTagData};
     },
   },
 
@@ -1538,59 +1123,11 @@ export function linkWikiDataArrays(wikiData, {
   XXX_decacheWikiData = false,
 } = {}) {
   const linkWikiDataSpec = new Map([
-    [wikiData.albumData, [
-      'artTagData',
-      'artistData',
-      'groupData',
-    ]],
-
-    [wikiData.artTagData, [
-      'albumData',
-      'trackData',
-    ]],
-
     [wikiData.artistData, [
-      'albumData',
       'artistData',
-      'flashData',
-      'trackData',
     ]],
 
-    [wikiData.flashData, [
-      'artistData',
-      'flashActData',
-      'trackData',
-    ]],
-
-    [wikiData.flashActData, [
-      'flashData',
-    ]],
-
-    [wikiData.groupData, [
-      'albumData',
-      'groupCategoryData',
-    ]],
-
-    [wikiData.groupCategoryData, [
-      'groupData',
-    ]],
-
-    [wikiData.homepageLayout?.rows, [
-      'albumData',
-      'groupData',
-    ]],
-
-    [wikiData.trackData, [
-      'albumData',
-      'artTagData',
-      'artistData',
-      'flashData',
-      'trackData',
-    ]],
-
-    [[wikiData.wikiInfo], [
-      'groupData',
-    ]],
+    [wikiData.homepageLayout?.rows, []],
   ]);
 
   for (const [things, keys] of linkWikiDataSpec.entries()) {
@@ -1607,11 +1144,7 @@ export function linkWikiDataArrays(wikiData, {
 }
 
 export function sortWikiDataArrays(wikiData) {
-  Object.assign(wikiData, {
-    albumData: sortChronologically(wikiData.albumData.slice()),
-    trackData: sortAlbumsTracksChronologically(wikiData.trackData.slice()),
-    flashData: sortFlashesChronologically(wikiData.flashData.slice()),
-  });
+  Object.assign(wikiData, {});
 
   // Re-link data arrays, so that every object has the new, sorted versions.
   // Note that the sorting step deliberately creates new arrays (mutating
@@ -1629,14 +1162,8 @@ export function sortWikiDataArrays(wikiData) {
 // build, for example).
 export function filterDuplicateDirectories(wikiData) {
   const deduplicateSpec = [
-    'albumData',
-    'artTagData',
     'artistData',
-    'flashData',
-    'flashActData',
-    'groupData',
     'newsData',
-    'trackData',
   ];
 
   const aggregate = openAggregate({message: `Duplicate directories found`});
@@ -1706,51 +1233,7 @@ export function filterDuplicateDirectories(wikiData) {
 // any errors). At the same time, we remove errored references from the thing's
 // data array.
 export function filterReferenceErrors(wikiData) {
-  const referenceSpec = [
-    ['albumData', processAlbumDocument, {
-      artistContribs: '_contrib',
-      coverArtistContribs: '_contrib',
-      trackCoverArtistContribs: '_contrib',
-      wallpaperArtistContribs: '_contrib',
-      bannerArtistContribs: '_contrib',
-      groups: 'group',
-      artTags: 'artTag',
-      commentary: '_commentary',
-    }],
-
-    ['groupCategoryData', processGroupCategoryDocument, {
-      groups: 'group',
-    }],
-
-    ['homepageLayout.rows', undefined, {
-      sourceGroup: '_homepageSourceGroup',
-      sourceAlbums: 'album',
-    }],
-
-    ['flashData', processFlashDocument, {
-      contributorContribs: '_contrib',
-      featuredTracks: 'track',
-    }],
-
-    ['flashActData', processFlashActDocument, {
-      flashes: 'flash',
-    }],
-
-    ['trackData', processTrackDocument, {
-      artistContribs: '_contrib',
-      contributorContribs: '_contrib',
-      coverArtistContribs: '_contrib',
-      referencedTracks: '_trackNotRerelease',
-      sampledTracks: '_trackNotRerelease',
-      artTags: 'artTag',
-      originalReleaseTrack: '_trackNotRerelease',
-      commentary: '_commentary',
-    }],
-
-    ['wikiInfo', processWikiInfoDocument, {
-      divideTrackListsByGroups: 'group',
-    }],
-  ];
+  const referenceSpec = [];
 
   function getNestedProp(obj, key) {
     const recursive = (o, k) =>

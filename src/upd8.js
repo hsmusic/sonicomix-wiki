@@ -826,16 +826,7 @@ async function main() {
       logInfo` - ${wikiData[thingDataProp]?.length ?? colors.red('(Missing!)')} ${colors.normal(colors.dim(label))}`;
     try {
       logInfo`Loaded data and processed objects:`;
-      logThings('albumData', 'albums');
-      logThings('trackData', 'tracks');
       logThings('artistData', 'artists');
-      if (wikiData.flashData) {
-        logThings('flashData', 'flashes');
-        logThings('flashActData', 'flash acts');
-      }
-      logThings('groupData', 'groups');
-      logThings('groupCategoryData', 'group categories');
-      logThings('artTagData', 'art tags');
       if (wikiData.newsData) {
         logThings('newsData', 'news entries');
       }
@@ -916,48 +907,14 @@ async function main() {
     });
 
     const commonDataMap = {
-      albumData: new Set([
-        // Needed for sorting
-        'date', 'tracks',
-        // Needed for computing page paths
-        'commentary',
-      ]),
-
-      artTagData: new Set([
-        // Needed for computing page paths
-        'isContentWarning',
-      ]),
-
       artistAliasData: new Set([
         // Needed for computing page paths
         'aliasedArtist',
       ]),
 
-      flashData: new Set([
-        // Needed for sorting
-        'act', 'date',
-      ]),
-
-      flashActData: new Set([
-        // Needed for sorting
-        'flashes',
-      ]),
-
-      groupData: new Set([
-        // Needed for computing page paths
-        'albums',
-      ]),
-
       listingSpec: new Set([
         // Needed for computing page paths
         'contentFunction', 'featureFlag',
-      ]),
-
-      trackData: new Set([
-        // Needed for sorting
-        'album', 'date',
-        // Needed for computing page paths
-        'commentary',
       ]),
     };
 
@@ -1457,30 +1414,7 @@ async function main() {
   // paths that will be exposed in site build code. We'll build a mapping
   // function between them so that when site code requests a site path,
   // it'll get the size of the file at the corresponding device path.
-  const additionalFilePaths = [
-    ...wikiData.albumData.flatMap((album) =>
-      [
-        ...(album.additionalFiles ?? []),
-        ...album.tracks.flatMap((track) => [
-          ...(track.additionalFiles ?? []),
-          ...(track.sheetMusicFiles ?? []),
-          ...(track.midiProjectFiles ?? []),
-        ]),
-      ]
-        .flatMap((fileGroup) => fileGroup.files)
-        .map((file) => ({
-          device: path.join(
-            mediaPath,
-            urls
-              .from('media.root')
-              .toDevice('media.albumAdditionalFile', album.directory, file)
-          ),
-          media: urls
-            .from('media.root')
-            .to('media.albumAdditionalFile', album.directory, file),
-        }))
-    ),
-  ];
+  const additionalFilePaths = [].flat();
 
   // Same dealio for images. Since just about any image can be embedded and
   // we can't super easily know which ones are referenced at runtime, just
