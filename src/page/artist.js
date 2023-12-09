@@ -1,5 +1,3 @@
-import {empty} from '#sugar';
-
 export const description = `per-artist info & artwork gallery pages`;
 
 // NB: See artist-alias.js for artist alias redirect pages.
@@ -23,29 +21,10 @@ export function pathsForTarget(artist) {
       type: 'page',
       path: ['artistGallery', artist.directory],
 
-      condition: () =>
-        !empty(artist.albumCoverArtistContributions) ||
-        !empty(artist.trackCoverArtistContributions),
+      condition: () => false,
 
       contentFunction: {
         name: 'generateArtistGalleryPage',
-        args: [artist],
-      },
-    },
-
-    {
-      type: 'page',
-      path: ['artistRollingWindow', artist.directory],
-
-      condition: () =>
-        artist.musicContributions.some(contrib => contrib.date) ||
-        artist.artworkContributions.some(contrib =>
-          contrib.date &&
-          contrib.thingProperty !== 'wallpaperArtistContribs' &&
-          contrib.thingProperty !== 'bannerArtistContribs'),
-
-      contentFunction: {
-        name: 'generateArtistRollingWindowPage',
         args: [artist],
       },
     },

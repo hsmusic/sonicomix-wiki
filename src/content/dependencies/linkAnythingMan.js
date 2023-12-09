@@ -1,15 +1,7 @@
 export default {
-  relations: (relation, thing) => ({
+  relations: (_relation, _thing) => ({
     link:
-      (thing.isAlbum
-        ? relation('linkAlbum', thing)
-     : thing.isArtwork
-        ? relation('linkArtwork', thing)
-     : thing.isFlash
-        ? relation('linkFlash', thing)
-     : thing.isTrack
-        ? relation('linkTrack', thing)
-        : null),
+      null,
   }),
 
   generate: (relations) =>

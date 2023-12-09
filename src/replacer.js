@@ -12,31 +12,6 @@ import {empty, escapeRegex, typeAppearance} from '#sugar';
 import {matchInlineLinks, matchMarkdownLinks} from '#wiki-data';
 
 export const replacerSpec = {
-  'album': {
-    find: 'album',
-    link: 'linkAlbumDynamically',
-  },
-
-  'album-commentary': {
-    find: 'album',
-    link: 'linkAlbumCommentary',
-  },
-
-  'album-gallery': {
-    find: 'album',
-    link: 'linkAlbumGallery',
-  },
-
-  'album-referenced-artworks': {
-    find: 'albumWithArtwork',
-    link: 'linkAlbumReferencedArtworks',
-  },
-
-  'album-referencing-artworks': {
-    find: 'albumWithArtwork',
-    link: 'linkAlbumReferencingArtworks',
-  },
-
   'artist': {
     find: 'artist',
     link: 'linkArtist',
@@ -59,45 +34,6 @@ export const replacerSpec = {
       html.tag('time',
         {datetime: date.toUTCString()},
         language.formatDate(date)),
-  },
-
-  'flash-index': {
-    find: null,
-    link: 'linkFlashIndex',
-  },
-
-  'flash': {
-    find: 'flash',
-    link: 'linkFlash',
-    transformName(name, node, input) {
-      const nextCharacter = input[node.iEnd];
-      const lastCharacter = name[name.length - 1];
-      if (![' ', '\n', '<'].includes(nextCharacter) && lastCharacter === '.') {
-        return name.slice(0, -1);
-      } else {
-        return name;
-      }
-    },
-  },
-
-  'flash-act': {
-    find: 'flashAct',
-    link: 'linkFlashAct',
-  },
-
-  'flash-side': {
-    find: 'flashSide',
-    link: 'linkFlashSide',
-  },
-
-  'group': {
-    find: 'group',
-    link: 'linkGroup',
-  },
-
-  'group-gallery': {
-    find: 'group',
-    link: 'linkGroupGallery',
   },
 
   'home': {
@@ -151,35 +87,10 @@ export const replacerSpec = {
     html: (ref, {language, args}) => language.$(ref, args),
   },
 
-  'tag': {
-    find: 'artTag',
-    link: 'linkArtTagDynamically',
-  },
-
-  'tag-info': {
-    find: 'artTag',
-    link: 'linkArtTagInfo',
-  },
-
-  'track': {
-    find: 'track',
-    link: 'linkTrackDynamically',
-  },
-
-  'track-referenced-artworks': {
-    find: 'trackWithArtwork',
-    link: 'linkTrackReferencedArtworks',
-  },
-
-  'track-referencing-artworks': {
-    find: 'trackWithArtwork',
-    link: 'linkTrackReferencingArtworks',
-  },
-
   'tooltip': {
     value: (ref) => ref,
     link: null,
-  }
+  },
 };
 
 // Syntax literals.

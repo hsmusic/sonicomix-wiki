@@ -360,70 +360,17 @@ export function prepareAndSort(sources, prepareForSort, sortFunction) {
 // Highly contextual sort functions - these are only for very specific types
 // of Things, and have appropriately hard-coded behavior.
 
-// Sorts so that tracks from the same album are generally grouped together in
-// their original (album track list) order, while prioritizing date (by default
-// release date but can be overridden) above all else.
-//
-// This function also works for data lists which contain only tracks.
-export function sortAlbumsTracksChronologically(data, {
-  latestFirst = false,
-  getDate,
-} = {}) {
-  // Sort albums before tracks...
-  sortByConditions(data, [t => t.isAlbum]);
-
-  // Put albums alphabetically, and group with them...
-  sortAlphabetically(data, {
-    getDirectory: t => t.isTrack ? t.album.directory : t.directory,
-    getName: t => t.isTrack ? t.album.name : t.name,
-  });
-
-  // Sort tracks by position in album...
-  sortByPositionInAlbum(data);
-
-  // ...and finally sort by date. If tracks from more than one album were
-  // released on the same date, they'll still be grouped together by album,
-  // and tracks within an album will retain their relative positioning (i.e.
-  // stay in the same order as part of the album's track listing).
-  sortByDate(data, {latestFirst, getDate});
-
-  return data;
-}
-
 export function sortArtworksChronologically(data, {
   latestFirst = false,
 } = {}) {
   // Artworks conveniently describe their things as artwork.thing, so they
-  // work in sortEntryThingPairs. (Yes, this is just assuming the artworks
-  // are only for albums and tracks... sorry... TODO...)
+  // work in sortEntryThingPairs.
   sortEntryThingPairs(data, things =>
-    sortAlbumsTracksChronologically(things, {latestFirst}));
+    sortChronologically(things, {latestFirst}));
 
   // Artworks' own dates always matter before however the thing places itself,
   // and accommodate per-thing properties like coverArtDate anyway.
   sortByDate(data, {latestFirst});
-
-  return data;
-}
-
-export function sortFlashesChronologically(data, {
-  latestFirst = false,
-  getDate,
-} = {}) {
-  // Group flashes by act...
-  sortAlphabetically(data, {
-    getName: flash => flash.act.name,
-    getDirectory: flash => flash.act.directory,
-  });
-
-  // Sort flashes by position in act...
-  sortByPositionInFlashAct(data);
-
-  // ...and finally sort by date. If flashes from more than one act were
-  // released on the same date, they'll still be grouped together by act,
-  // and flashes within an act will retain their relative positioning (i.e.
-  // stay in the same order as the act's flash listing).
-  sortByDate(data, {latestFirst, getDate});
 
   return data;
 }

@@ -14,11 +14,7 @@ export default {
         : null),
 
     warnings:
-      (artwork
-        ? artwork.artTags
-            .filter(artTag => artTag.isContentWarning)
-            .map(artTag => artTag.name)
-        : null),
+      [],
 
     dimensions:
       (artwork

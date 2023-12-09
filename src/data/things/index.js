@@ -9,41 +9,29 @@ import * as serialize from '#serialize';
 import {empty} from '#sugar';
 import Thing from '#thing';
 
-import * as additionalFileClasses from './additional-file.js';
 import * as additionalNameClasses from './additional-name.js';
-import * as albumClasses from './album.js';
-import * as artTagClasses from './art-tag.js';
 import * as artistClasses from './artist.js';
 import * as artworkClasses from './artwork.js';
 import * as contentClasses from './content.js';
 import * as contributionClasses from './contribution.js';
-import * as flashClasses from './flash.js';
-import * as groupClasses from './group.js';
 import * as homepageLayoutClasses from './homepage-layout.js';
 import * as languageClasses from './language.js';
 import * as newsEntryClasses from './news-entry.js';
 import * as sortingRuleClasses from './sorting-rule.js';
 import * as staticPageClasses from './static-page.js';
-import * as trackClasses from './track.js';
 import * as wikiInfoClasses from './wiki-info.js';
 
 const allClassLists = {
-  'additional-file.js': additionalFileClasses,
   'additional-name.js': additionalNameClasses,
-  'album.js': albumClasses,
-  'art-tag.js': artTagClasses,
   'artist.js': artistClasses,
   'artwork.js': artworkClasses,
   'content.js': contentClasses,
   'contribution.js': contributionClasses,
-  'flash.js': flashClasses,
-  'group.js': groupClasses,
   'homepage-layout.js': homepageLayoutClasses,
   'language.js': languageClasses,
   'news-entry.js': newsEntryClasses,
   'sorting-rule.js': sortingRuleClasses,
   'static-page.js': staticPageClasses,
-  'track.js': trackClasses,
   'wiki-info.js': wikiInfoClasses,
 };
 

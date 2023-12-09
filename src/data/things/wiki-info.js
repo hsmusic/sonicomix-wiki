@@ -21,7 +21,6 @@ import {
   fileExtension,
   flag,
   name,
-  referenceList,
   simpleString,
   soupyFind,
   wallpaperParts,
@@ -32,7 +31,7 @@ export class WikiInfo extends Thing {
   static [Thing.wikiData] = 'wikiInfo';
   static [Thing.oneInstancePerWiki] = true;
 
-  static [Thing.getPropertyDescriptors] = ({Group}) => ({
+  static [Thing.getPropertyDescriptors] = () => ({
     // Update & expose
 
     name: name(V('Unnamed Wiki')),
@@ -72,22 +71,15 @@ export class WikiInfo extends Thing {
     wikiWallpaperStyle: simpleString(),
     wikiWallpaperParts: wallpaperParts(),
 
-    divideTrackListsByGroups: referenceList({
-      class: input.value(Group),
-      find: soupyFind.input('group'),
-    }),
-
     contributionPresets: {
       flags: {update: true, expose: true},
       update: {validate: isContributionPresetList},
     },
 
     // Feature toggles
-    enableFlashesAndGames: flag(V(false)),
+
     enableListings: flag(V(false)),
     enableNews: flag(V(false)),
-    enableArtTagUI: flag(V(false)),
-    enableGroupUI: flag(V(false)),
 
     enableSearch: [
       exitWithoutDependency('_searchDataAvailable', {
@@ -141,13 +133,8 @@ export class WikiInfo extends Thing {
         transform: parseWallpaperParts,
       },
 
-      'Enable Flashes & Games': {property: 'enableFlashesAndGames'},
       'Enable Listings': {property: 'enableListings'},
       'Enable News': {property: 'enableNews'},
-      'Enable Art Tag UI': {property: 'enableArtTagUI'},
-      'Enable Group UI': {property: 'enableGroupUI'},
-
-      'Divide Track Lists By Groups': {property: 'divideTrackListsByGroups'},
 
       'Contribution Presets': {
         property: 'contributionPresets',

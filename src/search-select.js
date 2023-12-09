@@ -3,8 +3,6 @@
 // These files totally go together, so read them side by side, okay?
 
 import baseSearchSpec from '#search-shape';
-import {unique} from '#sugar';
-import {getKebabCase} from '#wiki-data';
 
 function prepareArtwork(artwork, thing, {
   checkIfImagePathHasCachedThumbnails,
@@ -14,9 +12,6 @@ function prepareArtwork(artwork, thing, {
   if (!artwork) {
     return undefined;
   }
-
-  const hasWarnings =
-    artwork.artTags?.some(artTag => artTag.isContentWarning);
 
   const artworkPath =
     artwork.path;
@@ -35,9 +30,7 @@ function prepareArtwork(artwork, thing, {
   }
 
   const selectedSize =
-    getThumbnailEqualOrSmaller(
-      (hasWarnings ? 'mini' : 'adorb'),
-      mediaSrc);
+    getThumbnailEqualOrSmaller('adorb', mediaSrc);
 
   const mediaSrcJpeg =
     mediaSrc.replace(/\.(png|jpg)$/, `.${selectedSize}.jpg`);
@@ -51,58 +44,6 @@ function prepareArtwork(artwork, thing, {
     displaySrc.replace(thing.directory, '<>');
 
   return serializeSrc;
-}
-
-function determineArtistGroups(artist, opts) {
-  const contributions = [
-    artist.musicContributions,
-    artist.artworkContributions
-      .filter(contrib => !contrib.annotation?.includes('edits for wiki')),
-  ].flat();
-
-  const contributionGroups =
-    contributions.flatMap(contrib => contrib.groups);
-
-  const scores =
-    new Map(
-      unique(contributionGroups).map(group => [group, 0]));
-
-  const artistNamesish =
-    unique(
-      [artist.name, ...artist.artistAliases.map(alias => alias.name)]
-        .map(name => getKebabCase(name)));
-
-  for (const group of scores.keys()) {
-    if (artistNamesish.includes(getKebabCase(group.name))) {
-      scores.delete(group);
-    }
-  }
-
-  for (const group of contributionGroups) {
-    scores.set(group, scores.get(group) + 1 / contributions.length);
-  }
-
-  const dividingGroups =
-    opts.wikiInfo.divideTrackListsByGroups;
-
-  const dividingGroupThreshold =
-    (contributions.length < 50 ? 0.08 : 0.16);
-
-  const generalGroupThreshold =
-    (contributions.length < 50 ? 0.00 : 0.12);
-
-  for (const group of scores.keys()) {
-    const threshold =
-      (dividingGroups.includes(group)
-        ? dividingGroupThreshold
-        : generalGroupThreshold);
-
-    if (scores.get(group) < threshold) {
-      scores.delete(group);
-    }
-  }
-
-  return Array.from(scores.keys());
 }
 
 function baselineProcess(thing, _opts) {
@@ -124,83 +65,27 @@ function baselineProcess(thing, _opts) {
 }
 
 function genericSelect(wikiData) {
-  const groupOrder =
-    wikiData.wikiInfo.divideTrackListsByGroups;
-
-  const getGroupRank = thing => {
-    const relevantRanks =
-      Array.from(groupOrder.entries())
-        .filter(({1: group}) => thing.groups.includes(group))
-        .map(({0: index}) => index);
-
-    if (relevantRanks.length === 0) {
-      return Infinity;
-    } else if (relevantRanks.length === 1) {
-      return relevantRanks[0];
-    } else {
-      return relevantRanks[0] + 0.5;
-    }
-  }
-
-  const sortByGroupRank = things =>
-    things.sort((a, b) => getGroupRank(a) - getGroupRank(b));
-
   return [
-    sortByGroupRank(wikiData.albumData.slice()),
-
-    wikiData.artTagData,
-
     wikiData.artistData
       .filter(artist => !artist.isAlias),
-
-    wikiData.flashData,
-
-    wikiData.groupData,
-
-    sortByGroupRank(
-      wikiData.trackData
-        .filter(track =>
-          track.isMainRelease ||
-          (getKebabCase(track.name) !==
-           getKebabCase(track.mainReleaseTrack.name)))),
   ].flat();
 }
 
 function genericProcess(thing, opts) {
   const fields = baselineProcess(thing, opts);
 
+  // eslint-disable-next-line no-unused-vars
   const boundPrepareArtwork = artwork =>
     prepareArtwork(artwork, thing, opts);
 
   fields.artwork =
-    (thing.isTrack && thing.hasUniqueCoverArt
-      ? boundPrepareArtwork(thing.trackArtworks[0])
-   : thing.isTrack
-      ? boundPrepareArtwork(thing.album.coverArtworks[0])
-   : thing.isAlbum
-      ? boundPrepareArtwork(thing.coverArtworks[0])
-   : thing.isFlash
-      ? boundPrepareArtwork(thing.coverArtwork)
-      : null);
+    null;
 
   fields.parentName =
-    (thing.isTrack ? thing.album.name
-   : thing.isGroup ? thing.category.name
-   : thing.isFlash ? thing.act.name
-      : null);
+    null;
 
   fields.disambiguator =
     fields.parentName;
-
-  fields.artTags =
-    (Array.from(new Set(
-      (thing.isTrack
-        ? thing.trackArtworks.flatMap(artwork => artwork.artTags)
-     : thing.isAlbum
-        ? thing.coverArtworks.flatMap(artwork => artwork.artTags)
-        : []))))
-
-      .map(artTag => artTag.nameShort);
 
   fields.additionalNames =
     (thing.constructor.hasPropertyDescriptor('additionalNames')
@@ -209,10 +94,7 @@ function genericProcess(thing, opts) {
       ? thing.artistAliases.map(alias => alias.name)
       : []);
 
-  const contribKeys = [
-    'artistContribs',
-    'contributorContribs',
-  ];
+  const contribKeys = [];
 
   const contributions =
     contribKeys
@@ -224,21 +106,6 @@ function genericProcess(thing, opts) {
         artist.name,
         ...artist.artistAliases.map(alias => alias.name),
       ]);
-
-  const groups =
-    (thing.isAlbum ? thing.groups
-   : thing.isTrack ? thing.album.groups
-   : thing.isArtist ? determineArtistGroups(thing, opts)
-   : []);
-
-  const mainContributorNames =
-    contributions
-      .map(({artist}) => artist.name);
-
-  fields.groups =
-    groups
-      .filter(group => !mainContributorNames.includes(group.name))
-      .map(group => group.name);
 
   return fields;
 }

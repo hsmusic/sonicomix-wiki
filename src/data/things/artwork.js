@@ -2,28 +2,13 @@ import {inspect} from 'node:util';
 
 import {colors} from '#cli';
 import {input, V} from '#composite';
-import find from '#find';
 import Thing from '#thing';
+import {isContributionList, isDate, isDimensions, isFileExtension}
+  from '#validators';
+import {parseContributors, parseDate, parseDimensions} from '#yaml';
 
-import {
-  isContentString,
-  isContributionList,
-  isDate,
-  isDimensions,
-  isFileExtension,
-  optional,
-  validateArrayItems,
-  validateProperties,
-  validateReference,
-  validateReferenceList,
-} from '#validators';
-
-import {
-  parseAnnotatedReferences,
-  parseContributors,
-  parseDate,
-  parseDimensions,
-} from '#yaml';
+import {withNearbyItemFromList, withPropertyFromList, withPropertyFromObject}
+  from '#composite/data';
 
 import {
   exitWithoutDependency,
@@ -35,19 +20,9 @@ import {
 } from '#composite/control-flow';
 
 import {
-  withFilteredList,
-  withNearbyItemFromList,
-  withPropertyFromList,
-  withPropertyFromObject,
-} from '#composite/data';
-
-import {
   constituteFrom,
-  constituteOrContinue,
   withRecontextualizedContributionList,
-  withResolvedAnnotatedReferenceList,
   withResolvedContribs,
-  withResolvedReferenceList,
 } from '#composite/wiki-data';
 
 import {
@@ -59,7 +34,6 @@ import {
   soupyFind,
   soupyReverse,
   thing,
-  wikiData,
 } from '#composite/wiki-properties';
 
 import {withContainingArtworkList} from '#composite/things/artwork';
@@ -73,7 +47,7 @@ export class Artwork extends Thing {
     // 'artistContribs', // from attached artwork or thing
   ];
 
-  static [Thing.getPropertyDescriptors] = ({ArtTag}) => ({
+  static [Thing.getPropertyDescriptors] = () => ({
     // Update & expose
 
     unqualifiedDirectory: directory({
@@ -151,79 +125,14 @@ export class Artwork extends Thing {
 
     style: simpleString(),
 
-    artTagsFromThingProperty: simpleString(),
-
-    artTags: [
-      withResolvedReferenceList({
-        list: input.updateValue({
-          validate:
-            validateReferenceList(ArtTag[Thing.referenceType]),
-        }),
-        find: soupyFind.input('artTag'),
-      }),
-
-      exposeDependencyOrContinue('#resolvedReferenceList', V('empty')),
-
-      constituteOrContinue('attachedArtwork', V('artTags'), V('empty')),
-
-      constituteFrom('thing', 'artTagsFromThingProperty', V([])),
-    ],
-
-    referencedArtworksFromThingProperty: simpleString(),
-
-    referencedArtworks: [
-      {
-        compute: (continuation) => continuation({
-          ['#find']:
-            find.mixed({
-              track: find.trackPrimaryArtwork,
-              album: find.albumPrimaryArtwork,
-            }),
-        }),
-      },
-
-      withResolvedAnnotatedReferenceList({
-        list: input.updateValue({
-          validate:
-            // TODO: It's annoying to hardcode this when it's really the
-            // same behavior as through annotatedReferenceList and through
-            // referenceListUpdateDescription, the latter of which isn't
-            // available outside of #composite/wiki-data internals.
-            validateArrayItems(
-              validateProperties({
-                reference: validateReference(['album', 'track']),
-                annotation: optional(isContentString),
-              })),
-        }),
-
-        data: '_artworkData',
-        find: '#find',
-
-        thing: input.value('artwork'),
-      }),
-
-      exposeDependencyOrContinue('#resolvedAnnotatedReferenceList', V('empty')),
-
-      constituteFrom('thing', 'referencedArtworksFromThingProperty', {
-        else: input.value([]),
-      }),
-    ],
-
     // Update only
 
     find: soupyFind(),
     reverse: soupyReverse(),
 
-    // used for referencedArtworks (mixedFind)
-    artworkData: wikiData(V(Artwork)),
-
     // Expose only
 
     isArtwork: exposeConstant(V(true)),
-
-    referencedByArtworks: reverseReferenceList({
-      reverse: soupyReverse.input('artworksWhichReference'),
-    }),
 
     isMainArtwork: [
       withContainingArtworkList(),
@@ -283,18 +192,6 @@ export class Artwork extends Thing {
 
       exposeConstant(V([])),
     ],
-
-    contentWarningArtTags: [
-      withPropertyFromList('artTags', V('isContentWarning')),
-      withFilteredList('artTags', '#artTags.isContentWarning'),
-      exposeDependency('#filteredList'),
-    ],
-
-    contentWarnings: [
-      withPropertyFromList('contentWarningArtTags', V('name')),
-      exposeDependency('#contentWarningArtTags.name'),
-    ],
-
   });
 
   static [Thing.yamlDocumentSpec] = {
@@ -325,38 +222,10 @@ export class Artwork extends Thing {
       },
 
       'Style': {property: 'style'},
-
-      'Tags': {property: 'artTags'},
-
-      'Referenced Artworks': {
-        property: 'referencedArtworks',
-        transform: parseAnnotatedReferences,
-      },
     },
   };
 
   static [Thing.reverseSpecs] = {
-    artworksWhichReference: {
-      bindTo: 'artworkData',
-
-      referencing: referencingArtwork =>
-        referencingArtwork.referencedArtworks
-          .map(({artwork: referencedArtwork, ...referenceDetails}) => ({
-            referencingArtwork,
-            referencedArtwork,
-            referenceDetails,
-          })),
-
-      referenced: ({referencedArtwork}) => [referencedArtwork],
-
-      tidy: ({referencingArtwork, referenceDetails}) => ({
-        artwork: referencingArtwork,
-        ...referenceDetails,
-      }),
-
-      date: ({artwork}) => artwork.date,
-    },
-
     artworksWhichAttach: {
       bindTo: 'artworkData',
 
@@ -367,13 +236,6 @@ export class Artwork extends Thing {
 
       referenced: referencingArtwork =>
         [referencingArtwork.attachedArtwork],
-    },
-
-    artworksWhichFeature: {
-      bindTo: 'artworkData',
-
-      referencing: artwork => [artwork],
-      referenced: artwork => artwork.artTags,
     },
   };
 

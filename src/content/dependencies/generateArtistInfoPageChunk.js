@@ -3,7 +3,7 @@ import {empty} from '#sugar';
 export default {
   slots: {
     mode: {
-      validate: v => v.is('flash', 'album'),
+      validate: v => v.is(null),
     },
 
     id: {type: 'string'},
@@ -26,7 +26,7 @@ export default {
     durationApproximate: {type: 'boolean'},
   },
 
-  generate(slots, {html, language}) {
+  generate(slots, {html}) {
     let earliestDate = null;
     let latestDate = null;
     let onlyDate = null;
@@ -41,50 +41,15 @@ export default {
           .reduce((a, b) => a <= b ? b : a);
 
       if (+earliestDate === +latestDate) {
+        // eslint-disable-next-line no-unused-vars
         onlyDate = earliestDate;
       }
     }
 
-    let accentedLink;
-    switch (slots.mode) {
-      case 'album': {
-        const options = {album: slots.link};
-        const parts = ['artistPage.creditList.album'];
+    let accentedLink = null;
 
-        if (onlyDate) {
-          parts.push('withDate');
-          options.date = language.formatDate(onlyDate);
-        }
-
-        if (slots.duration) {
-          parts.push('withDuration');
-          options.duration =
-            language.formatDuration(slots.duration, {
-              approximate: slots.durationApproximate,
-            });
-        }
-
-        accentedLink = language.formatString(...parts, options);
-        break;
-      }
-
-      case 'flash': {
-        const options = {act: slots.link};
-        const parts = ['artistPage.creditList.flashAct'];
-
-        if (onlyDate) {
-          parts.push('withDate');
-          options.date = language.formatDate(onlyDate);
-        } else if (earliestDate && latestDate) {
-          parts.push('withDateRange');
-          options.dateRange =
-            language.formatDateRange(earliestDate, latestDate);
-        }
-
-        accentedLink = language.formatString(...parts, options);
-        break;
-      }
-    }
+    // eslint-disable-next-line no-empty
+    switch (slots.mode) {}
 
     return html.tags([
       html.tag('dt',

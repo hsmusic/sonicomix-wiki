@@ -3,32 +3,14 @@ export const HOMEPAGE_LAYOUT_DATA_FILE = 'homepage.yaml';
 import {inspect} from 'node:util';
 
 import {colors} from '#cli';
-import {input, V} from '#composite';
+import {V} from '#composite';
 import Thing from '#thing';
 import {empty} from '#sugar';
+import {isString, isStringNonEmpty, validateArrayItems} from '#validators';
 
-import {
-  anyOf,
-  is,
-  isCountingNumber,
-  isString,
-  isStringNonEmpty,
-  validateArrayItems,
-  validateReference,
-} from '#validators';
-
-import {exposeConstant, exposeDependency} from '#composite/control-flow';
-import {withResolvedReference} from '#composite/wiki-data';
-
-import {
-  color,
-  contentString,
-  name,
-  referenceList,
-  soupyFind,
-  thing,
-  thingList,
-} from '#composite/wiki-properties';
+import {exposeConstant} from '#composite/control-flow';
+import {color, contentString, name, soupyFind, thing, thingList}
+  from '#composite/wiki-properties';
 
 export class HomepageLayout extends Thing {
   static [Thing.friendlyName] = `Homepage Layout`;
@@ -86,10 +68,6 @@ export class HomepageLayout extends Thing {
         switch (document['Row']) {
           case 'actions':
             return HomepageLayoutActionsRow;
-          case 'album carousel':
-            return HomepageLayoutAlbumCarouselRow;
-          case 'album grid':
-            return HomepageLayoutAlbumGridRow;
           default:
             throw new TypeError(`Unrecognized row type ${document['Row']}`);
         }
@@ -242,88 +220,6 @@ export class HomepageLayoutActionsRow extends HomepageLayoutRow {
   static [Thing.yamlDocumentSpec] = {
     fields: {
       'Actions': {property: 'actionLinks'},
-    },
-  };
-}
-
-export class HomepageLayoutAlbumCarouselRow extends HomepageLayoutRow {
-  static [Thing.friendlyName] = `Homepage Album Carousel Row`;
-
-  static [Thing.getPropertyDescriptors] = (opts, {Album} = opts) => ({
-    // Update & expose
-
-    albums: referenceList({
-      class: input.value(Album),
-      find: soupyFind.input('album'),
-    }),
-
-    // Expose only
-
-    isHomepageLayoutAlbumCarouselRow: exposeConstant(V(true)),
-    type: exposeConstant(V('album carousel')),
-  });
-
-  static [Thing.yamlDocumentSpec] = {
-    fields: {
-      'Albums': {property: 'albums'},
-    },
-  };
-}
-
-export class HomepageLayoutAlbumGridRow extends HomepageLayoutRow {
-  static [Thing.friendlyName] = `Homepage Album Grid Row`;
-
-  static [Thing.getPropertyDescriptors] = (opts, {Album, Group} = opts) => ({
-    // Update & expose
-
-    sourceGroup: [
-      {
-        flags: {expose: true, update: true, compose: true},
-
-        update: {
-          validate:
-            anyOf(
-              is('new-releases', 'new-additions'),
-              validateReference(Group[Thing.referenceType])),
-        },
-
-        expose: {
-          transform: (value, continuation) =>
-            (value === 'new-releases' || value === 'new-additions'
-              ? value
-              : continuation(value)),
-        },
-      },
-
-      withResolvedReference({
-        ref: input.updateValue(),
-        find: soupyFind.input('group'),
-      }),
-
-      exposeDependency('#resolvedReference'),
-    ],
-
-    sourceAlbums: referenceList({
-      class: input.value(Album),
-      find: soupyFind.input('album'),
-    }),
-
-    countAlbumsFromGroup: {
-      flags: {update: true, expose: true},
-      update: {validate: isCountingNumber},
-    },
-
-    // Expose only
-
-    isHomepageLayoutAlbumGridRow: exposeConstant(V(true)),
-    type: exposeConstant(V('album grid')),
-  });
-
-  static [Thing.yamlDocumentSpec] = {
-    fields: {
-      'Group': {property: 'sourceGroup'},
-      'Count': {property: 'countAlbumsFromGroup'},
-      'Albums': {property: 'sourceAlbums'},
     },
   };
 }

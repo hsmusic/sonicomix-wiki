@@ -1,5 +1,4 @@
 import * as html from '#html';
-import {getArtistNumContributions} from '#wiki-data';
 
 export function generateRedirectHTML(title, target, {language}) {
   return `<!DOCTYPE html>\n` + html.tag('html', [
@@ -31,27 +30,6 @@ export function generateRedirectHTML(title, target, {language}) {
   ]);
 }
 
-export function generateRandomLinkDataJSON({wikiData}) {
-  const {albumData, artistData} = wikiData;
-
-  return JSON.stringify({
-    albumDirectories:
-      albumData
-        .map(album => album.directory),
-
-    albumTrackDirectories:
-      albumData
-        .map(album => album.tracks
-          .map(track => track.directory)),
-
-    artistDirectories:
-      artistData
-        .filter(artist => !artist.isAlias)
-        .map(artist => artist.directory),
-
-    artistNumContributions:
-      artistData
-        .filter(artist => !artist.isAlias)
-        .map(artist => getArtistNumContributions(artist)),
-  });
+export function generateRandomLinkDataJSON({wikiData: _wikiData}) {
+  return JSON.stringify({});
 }

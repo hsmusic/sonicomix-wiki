@@ -1,16 +1,9 @@
-import '../group-contributions-table.js';
-
 import * as additionalNamesBoxModule from './additional-names-box.js';
-import * as albumCommentarySidebarModule from './album-commentary-sidebar.js';
-import * as artTagGalleryFilterModule from './art-tag-gallery-filter.js';
-import * as artTagNetworkModule from './art-tag-network.js';
 import * as artistExternalLinkTooltipModule from './artist-external-link-tooltip.js';
-import * as artistRollingWindowModule from './artist-rolling-window.js';
 import * as cssCompatibilityAssistantModule from './css-compatibility-assistant.js';
 import * as datetimestampTooltipModule from './datetimestamp-tooltip.js';
 import * as draggedLinkModule from './dragged-link.js';
 import * as expandableGridSectionModule from './expandable-grid-section.js';
-import * as galleryStyleSelectorModule from './gallery-style-selector.js';
 import * as hashLinkModule from './hash-link.js';
 import * as hoverableTooltipModule from './hoverable-tooltip.js';
 import * as imageOverlayModule from './image-overlay.js';
@@ -18,7 +11,6 @@ import * as intrapageDotSwitcherModule from './intrapage-dot-switcher.js';
 import * as liveMousePositionModule from './live-mouse-position.js';
 import * as memorableDetailsModule from './memorable-details.js';
 import * as quickDescriptionModule from './quick-description.js';
-import * as revealAllGridControlModule from './reveal-all-grid-control.js';
 import * as scriptedLinkModule from './scripted-link.js';
 import * as sidebarSearchModule from './sidebar-search.js';
 import * as stickyHeadingModule from './sticky-heading.js';
@@ -28,16 +20,11 @@ import * as wikiSearchModule from './wiki-search.js';
 
 export const modules = [
   additionalNamesBoxModule,
-  albumCommentarySidebarModule,
-  artTagGalleryFilterModule,
-  artTagNetworkModule,
   artistExternalLinkTooltipModule,
-  artistRollingWindowModule,
   cssCompatibilityAssistantModule,
   datetimestampTooltipModule,
   draggedLinkModule,
   expandableGridSectionModule,
-  galleryStyleSelectorModule,
   hashLinkModule,
   hoverableTooltipModule,
   imageOverlayModule,
@@ -45,7 +32,6 @@ export const modules = [
   liveMousePositionModule,
   memorableDetailsModule,
   quickDescriptionModule,
-  revealAllGridControlModule,
   scriptedLinkModule,
   sidebarSearchModule,
   stickyHeadingModule,

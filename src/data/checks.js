@@ -7,7 +7,6 @@ import CacheableObject from '#cacheable-object';
 import {replacerSpec, parseContentNodes} from '#replacer';
 import {compareArrays, cut, cutStart, empty, getNestedProp, iterateMultiline}
   from '#sugar';
-import Thing from '#thing';
 import thingConstructors from '#things';
 
 import {
@@ -167,38 +166,11 @@ function getFieldPropertyMessage(yamlDocumentSpec, property) {
 }
 
 function decoAnnotateFindErrors(findFn) {
-  function annotateMultipleNameMatchesIncludingUnfortunatelyUnsecondary(error) {
-    const matches = error[Symbol.for('hsmusic.find.multipleNameMatches')];
-    if (!matches) return;
-
-    const notSoSecondary =
-      matches
-        .map(match => match.thing ?? match)
-        .filter(match =>
-          match.isTrack &&
-          match.isMainRelease &&
-          CacheableObject.getUpdateValue(match, 'mainRelease'));
-
-    if (empty(notSoSecondary)) return;
-
-    let {message} = error;
-    message += (message.includes('\n') ? '\n\n' : '\n');
-    message += colors.bright(colors.yellow('<!>')) + ' ';
-    message += colors.yellow(`Some of these tracks are meant to be secondary releases,`) + '\n';
-    message += ' '.repeat(4);
-    message += colors.yellow(`but another error is keeping that from processing correctly!`) + '\n';
-    message += ' '.repeat(4);
-    message += colors.yellow(`Probably look for an error to do with "Main Release", first.`);
-    Object.assign(error, {message});
-  }
-
   return (...args) => {
     try {
       return findFn(...args);
     } catch (caughtError) {
-      throw annotateError(caughtError, ...[
-        annotateMultipleNameMatchesIncludingUnfortunatelyUnsecondary,
-      ]);
+      throw annotateError(caughtError, ...[]);
     }
   };
 }
@@ -206,27 +178,7 @@ function decoAnnotateFindErrors(findFn) {
 function decoSuppressFindErrors(findFn, {property}) {
   void property;
 
-  return conditionallySuppressError(_error => {
-    // We're not suppressing any errors at the moment.
-    // An old suppression is kept below for reference.
-
-    /*
-    if (property === 'sampledTracks') {
-      // Suppress "didn't match anything" errors in particular, just for samples.
-      // In hsmusic-data we have a lot of "stub" sample data which don't have
-      // corresponding tracks yet, so it won't be useful to report such reference
-      // errors until we take the time to address that. But other errors, like
-      // malformed reference strings or miscapitalized existing tracks, should
-      // still be reported, as samples of existing tracks *do* display on the
-      // website!
-      if (error.message.includes(`Didn't match anything`)) {
-        return true;
-      }
-    }
-    */
-
-    return false;
-  }, findFn);
+  return conditionallySuppressError(_error => false, findFn);
 }
 
 // Warn about references across data which don't match anything.  This involves
@@ -235,80 +187,12 @@ function decoSuppressFindErrors(findFn, {property}) {
 // any errors). At the same time, we remove errored references from the thing's
 // data array.
 export function filterReferenceErrors(wikiData, {
+  // eslint-disable-next-line no-unused-vars
   find,
+
   bindFind,
 }) {
-  const referenceSpec = [
-    ['albumData', {
-      artistContribs: '_contrib',
-      coverArtistContribs: '_contrib',
-      trackCoverArtistContribs: '_contrib',
-      wallpaperArtistContribs: '_contrib',
-      bannerArtistContribs: '_contrib',
-      groups: 'group',
-      artTags: '_artTag',
-      referencedArtworks: '_artwork',
-      commentary: '_content',
-      creditingSources: '_content',
-    }],
-
-    ['artTagData', {
-      directDescendantArtTags: 'artTag',
-    }],
-
-    ['artworkData', {
-      referencedArtworks: '_artwork',
-    }],
-
-    ['flashData', {
-      commentary: '_content',
-      creditingSources: '_content',
-    }],
-
-    ['groupCategoryData', {
-      groups: 'group',
-    }],
-
-    ['homepageLayout.sections.rows', {
-      _include: row => row.type === 'album carousel',
-      albums: 'album',
-    }],
-
-    ['homepageLayout.sections.rows', {
-      _include: row => row.type === 'album grid',
-      sourceGroup: '_homepageSourceGroup',
-      sourceAlbums: 'album',
-    }],
-
-    ['flashData', {
-      contributorContribs: '_contrib',
-      featuredTracks: 'track',
-    }],
-
-    ['seriesData', {
-      albums: 'album',
-    }],
-
-    ['trackData', {
-      artistContribs: '_contrib',
-      contributorContribs: '_contrib',
-      coverArtistContribs: '_contrib',
-      previousProductionTracks: '_trackMainReleasesOnly',
-      referencedTracks: '_trackMainReleasesOnly',
-      sampledTracks: '_trackMainReleasesOnly',
-      artTags: '_artTag',
-      referencedArtworks: '_artwork',
-      mainRelease: '_mainRelease',
-      commentary: '_content',
-      creditingSources: '_content',
-      referencingSources: '_content',
-      lyrics: '_content',
-    }],
-
-    ['wikiInfo', {
-      divideTrackListsByGroups: 'group',
-    }],
-  ];
+  const referenceSpec = [];
 
   const boundFind = bindFind(wikiData, {mode: 'error'});
   const findArtistOrAlias = bindFindArtistOrAlias(boundFind);
@@ -370,172 +254,12 @@ export function filterReferenceErrors(wikiData, {
             let findFn;
 
             switch (findFnKey) {
-              case '_artwork': {
-                const mixed =
-                  find.mixed({
-                    album: find.albumPrimaryArtwork,
-                    track: find.trackPrimaryArtwork,
-                  });
-
-                const data =
-                  wikiData.artworkData;
-
-                findFn = ref => mixed(ref.reference, data, {mode: 'error'});
-
-                break;
-              }
-
-              case '_artTag':
-                findFn = boundFind.artTag;
-                break;
-
               case '_content':
                 findFn = findArtistOrAlias;
                 break;
 
               case '_contrib':
                 findFn = contribRef => findArtistOrAlias(contribRef.artist);
-                break;
-
-              case '_homepageSourceGroup':
-                findFn = groupRef => {
-                  if (groupRef === 'new-additions' || groupRef === 'new-releases') {
-                    return true;
-                  }
-
-                  return boundFind.group(groupRef);
-                };
-                break;
-
-              case '_mainRelease':
-                findFn = ref => {
-                  // Mocking what's going on in `withMainRelease`.
-
-                  if (ref === 'same name single') {
-                    // Accessing the current thing here.
-                    try {
-                      return boundFind.albumSinglesOnly(thing.name, {
-                        fuzz: {
-                          capitalization: true,
-                          kebab: true,
-                        },
-                      });
-                    } catch (caughtError) {
-                      throw new Error(
-                        `Didn't match a single with the same name`,
-                        {cause: caughtError});
-                    }
-                  }
-
-                  let track, trackError;
-                  let album, albumError;
-
-                  try {
-                    track = boundFind.trackMainReleasesOnly(ref);
-                  } catch (caughtError) {
-                    trackError = new Error(
-                      `Didn't match a track`, {cause: caughtError});
-                  }
-
-                  try {
-                    album = boundFind.album(ref);
-                  } catch (caughtError) {
-                    albumError = new Error(
-                      `Didn't match an album`, {cause: caughtError});
-                  }
-
-                  if (track && album) {
-                    if (album.tracks.includes(track)) {
-                      return track;
-                    } else {
-                      throw new Error(
-                        `Unrelated album and track matched for reference "${ref}". Please resolve:\n` +
-                        `- ${inspect(track)}\n` +
-                        `- ${inspect(album)}\n` +
-                        `Returning null for this reference.`);
-                    }
-                  }
-
-                  if (track) {
-                    return track;
-                  }
-
-                  if (album) {
-                    // At this point verification depends on the thing itself,
-                    // which is currently in lexical scope, but if this code
-                    // gets refactored, there might be trouble here...
-
-                    if (thing.mainReleaseTrack === null) {
-                      if (album === thing.album) {
-                        throw new Error(
-                          `Matched album for reference "${ref}":\n` +
-                          `- ` + inspect(album) + `\n` +
-                          `...but this is the album that includes this secondary release, itself.\n` +
-                          `Please resolve by pointing to aonther album here, or by removing this\n` +
-                          `Main Release field, if this track is meant to be the main release.`);
-                      } else {
-                        throw new Error(
-                          `Matched album for reference "${ref}":\n` +
-                          `- ` + inspect(album) + `\n` +
-                          `...but none of its tracks automatically match this secondary release.\n` +
-                          `Please resolve by specifying the track here, instead of the album.`);
-                      }
-                    } else {
-                      return album;
-                    }
-                  }
-
-                  const aggregateCause =
-                    new AggregateError([albumError, trackError]);
-
-                  aggregateCause[Symbol.for('hsmusic.aggregate.translucent')] = true;
-
-                  throw new Error(`Trouble matching "${ref}"`, {
-                    cause: aggregateCause,
-                  });
-                }
-
-                break;
-
-              case '_trackArtwork':
-                findFn = ref => boundFind.track(ref.reference);
-                break;
-
-              case '_trackMainReleasesOnly':
-                findFn = trackRef => {
-                  let track = boundFind.trackMainReleasesOnly(trackRef, {mode: 'quiet'});
-                  if (track) {
-                    return track;
-                  }
-
-                  // Will error normally, if this can't unambiguously resolve
-                  // or doesn't match any track.
-                  track = boundFind.track(trackRef);
-
-                  const mainRef = CacheableObject.getUpdateValue(track, 'mainRelease');
-                  if (mainRef) {
-                    // It's possible for the main release to not actually exist, in this case.
-                    // It should still be reported since the 'Main Release' field was present.
-                    const main = boundFind.track(mainRef, {mode: 'quiet'});
-
-                    // Prefer references by name, but only if it's unambiguous.
-                    const mainByName =
-                      (main
-                        ? boundFind.track(main.name, {mode: 'quiet'})
-                        : null);
-
-                    const shouldBeMessage =
-                      (mainByName
-                        ? colors.green(main.name)
-                     : main
-                        ? colors.green('track:' + main.directory)
-                        : colors.green(mainRef));
-
-                    throw new Error(`Reference ${colors.red(trackRef)} is to a rerelease, should be ${shouldBeMessage}`);
-                  }
-
-                  return track;
-                };
                 break;
 
               default:
@@ -548,7 +272,7 @@ export function filterReferenceErrors(wikiData, {
 
             const fieldPropertyMessage =
               getFieldPropertyMessage(
-                thing.constructor[Thing.yamlDocumentSpec],
+                thing.constructor[Symbol.for('Thing.yamlDocumentSpec')],
                 property);
 
             const findFnMessage =
@@ -564,37 +288,6 @@ export function filterReferenceErrors(wikiData, {
             let newPropertyValue = value;
 
             determineNewPropertyValue: {
-              // TODO: The special-casing for artTag is obviously a bit janky.
-              // It would be nice if this could be moved to processDocument ala
-              // fieldCombinationErrors, but art tags are only an error if the
-              // thing doesn't have an artwork - which can't be determined from
-              // the track document on its own, thanks to inheriting contribs
-              // from the album.
-              if (findFnKey === '_artTag') {
-                let hasCoverArtwork =
-                  !empty(CacheableObject.getUpdateValue(thing, 'coverArtistContribs'));
-
-                if (thing.constructor === thingConstructors.Track) {
-                  if (thing.album) {
-                    hasCoverArtwork ||=
-                      !empty(CacheableObject.getUpdateValue(thing.album, 'trackCoverArtistContribs'));
-                  }
-
-                  if (thing.disableUniqueCoverArt) {
-                    hasCoverArtwork = false;
-                  }
-                }
-
-                if (!hasCoverArtwork) {
-                  nest({message: errorMessage}, ({push}) => {
-                    push(new TypeError(`No cover artwork, so this shouldn't have art tags specified`));
-                  });
-
-                  newPropertyValue = [];
-                  break determineNewPropertyValue;
-                }
-              }
-
               if (findFnKey === '_content') {
                 filter(
                   value, {message: errorMessage},
@@ -695,59 +388,22 @@ export class ContentNodeError extends Error {
 export function reportContentTextErrors(wikiData, {
   bindFind,
 }) {
-  const additionalFileShape = {
-    description: 'description',
-  };
-
+  // eslint-disable-next-line no-unused-vars
   const artworkShape = {
     source: 'artwork source',
     originDetails: 'artwork origin details',
   };
 
+  // eslint-disable-next-line no-unused-vars
   const commentaryShape = {
     body: 'commentary body',
     artistText: 'commentary artist text',
     annotation: 'commentary annotation',
   };
 
-  const lyricsShape = {
-    body: 'lyrics body',
-    artistText: 'lyrics artist text',
-    annotation: 'lyrics annotation',
-  };
-
   const contentTextSpec = [
-    ['albumData', {
-      additionalFiles: additionalFileShape,
-      commentary: commentaryShape,
-      creditingSources: commentaryShape,
-      coverArtworks: artworkShape,
-    }],
-
-    ['artTagData', {
-      description: '_content',
-    }],
-
     ['artistData', {
       contextNotes: '_content',
-    }],
-
-    ['flashData', {
-      commentary: commentaryShape,
-      creditingSources: commentaryShape,
-      coverArtwork: artworkShape,
-    }],
-
-    ['flashActData', {
-      listTerminology: '_content',
-    }],
-
-    ['flashSideData', {
-      listTerminology: '_content',
-    }],
-
-    ['groupData', {
-      description: '_content',
     }],
 
     ['homepageLayout', {
@@ -760,17 +416,6 @@ export function reportContentTextErrors(wikiData, {
 
     ['staticPageData', {
       content: '_content',
-    }],
-
-    ['trackData', {
-      additionalFiles: additionalFileShape,
-      commentary: commentaryShape,
-      creditingSources: commentaryShape,
-      referencingSources: commentaryShape,
-      lyrics: lyricsShape,
-      midiProjectFiles: additionalFileShape,
-      sheetMusicFiles: additionalFileShape,
-      trackArtworks: artworkShape,
     }],
 
     ['wikiInfo', {
@@ -916,7 +561,7 @@ export function reportContentTextErrors(wikiData, {
 
               const fieldPropertyMessage =
                 getFieldPropertyMessage(
-                  thing.constructor[Thing.yamlDocumentSpec],
+                  thing.constructor[Symbol.for('Thing.yamlDocumentSpec')],
                   property);
 
               const topMessage =
@@ -979,6 +624,7 @@ export function reportOrphanedArtworks(wikiData) {
   const aggregate =
     openAggregate({message: `Artwork objects are orphaned`});
 
+  // eslint-disable-next-line no-unused-vars
   const assess = ({
     message,
     filterThing,
@@ -1001,22 +647,6 @@ export function reportOrphanedArtworks(wikiData) {
       }
     });
   };
-
-  const {Album, Track} = thingConstructors;
-
-  assess({
-    message: `album cover artworks`,
-    filterThing: Album,
-    filterContribs: 'coverArtistContribs',
-    link: 'coverArtworks',
-  });
-
-  assess({
-    message: `track artworks`,
-    filterThing: Track,
-    filterContribs: 'coverArtistContribs',
-    link: 'trackArtworks',
-  });
 
   aggregate.close();
 }

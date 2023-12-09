@@ -1,15 +1,12 @@
-import {empty} from '#sugar';
-
 export default {
   sprawl: ({wikiInfo}) => ({
     enableListings:
       wikiInfo.enableListings,
   }),
 
-  query: (_sprawl, artist) => ({
+  query: (_artist) => ({
     hasGallery:
-      !empty(artist.albumCoverArtistContributions) ||
-      !empty(artist.trackCoverArtistContributions),
+      false,
   }),
 
   relations: (relation, query, _sprawl, artist) => ({
@@ -26,9 +23,6 @@ export default {
       (query.hasGallery
         ? relation('linkArtistGallery', artist)
         : null),
-
-    artistRollingWindowLink:
-      relation('linkArtistRollingWindow', artist),
   }),
 
   data: (_query, sprawl) => ({
@@ -40,7 +34,7 @@ export default {
     showExtraLinks: {type: 'boolean', default: false},
 
     currentExtra: {
-      validate: v => v.is('gallery', 'rolling-window'),
+      validate: v => v.is('gallery'),
     },
   },
 
@@ -74,7 +68,6 @@ export default {
             }),
 
             slots.showExtraLinks &&
-            slots.currentExtra !== 'rolling-window' &&
               relations.artistGalleryLink?.slots({
                 attributes: [
                   slots.currentExtra === 'gallery' &&
@@ -82,12 +75,6 @@ export default {
                 ],
 
                 content: language.$('misc.nav.gallery'),
-              }),
-
-            slots.currentExtra === 'rolling-window' &&
-              relations.artistRollingWindowLink.slots({
-                attributes: {class: 'current'},
-                content: language.$('misc.nav.rollingWindow'),
               }),
           ],
         }),

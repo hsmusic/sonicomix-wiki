@@ -3,6 +3,7 @@
 
 /* precede #find */
 import '#data-checks';
+import '#things'; // TODO: Why do we have to add this for sonicomix, but not hsmusic?
 
 import '#find';
 

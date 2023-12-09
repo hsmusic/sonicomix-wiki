@@ -1767,49 +1767,11 @@ export function linkWikiDataArrays(wikiData, {bindFind, bindReverse}) {
     // entries must be present here even without any properties to explicitly
     // link if the 'find' or 'reverse' properties will be implicitly linked
 
-    ['albumData', [
-      'artworkData',
-      'wikiInfo',
-    ]],
-
-    ['artTagData', [/* reverse */]],
-
     ['artistData', [/* find, reverse */]],
-
-    ['artworkData', ['artworkData']],
 
     ['commentaryData', [/* find */]],
 
-    ['creditingSourceData', [/* find */]],
-
-    ['flashData', [
-      'wikiInfo',
-    ]],
-
-    ['flashActData', [/* find, reverse */]],
-
-    ['flashSideData', [/* find */]],
-
-    ['groupData', [/* find, reverse */]],
-
-    ['groupCategoryData', [/* find */]],
-
     ['homepageLayout.sections.rows', [/* find */]],
-
-    ['lyricsData', [/* find */]],
-
-    ['referencingSourceData', [/* find */]],
-
-    ['seriesData', [/* find */]],
-
-    ['trackData', [
-      'artworkData',
-      'wikiInfo',
-    ]],
-
-    ['trackSectionData', [/* reverse */]],
-
-    ['wikiInfo', [/* find */]],
   ]);
 
   const constructorHasFindMap = new Map();

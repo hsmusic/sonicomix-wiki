@@ -972,19 +972,14 @@ const countHelper = (stringKey, optionName = stringKey) =>
 
 // TODO: These are hard-coded. Is there a better way?
 Object.assign(Language.prototype, {
-  countAdditionalFiles: countHelper('additionalFiles', 'files'),
-  countAlbums: countHelper('albums'),
-  countArtTags: countHelper('artTags', 'tags'),
   countArtworks: countHelper('artworks'),
   countCommentaryEntries: countHelper('commentaryEntries', 'entries'),
   countContributions: countHelper('contributions'),
   countDays: countHelper('days'),
-  countFlashes: countHelper('flashes'),
   countMonths: countHelper('months'),
   countTimesFeatured: countHelper('timesFeatured'),
   countTimesReferenced: countHelper('timesReferenced'),
   countTimesUsed: countHelper('timesUsed'),
-  countTracks: countHelper('tracks'),
   countWeeks: countHelper('weeks'),
   countYears: countHelper('years'),
 });

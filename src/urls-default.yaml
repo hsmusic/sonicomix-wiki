@@ -19,10 +19,6 @@ data:
   paths:
   - *genericPaths
 
-  - album: 'album/<>'
-    artist: 'artist/<>'
-    track: 'track/<>'
-
 localized:
   paths:
   - *genericPaths
@@ -30,29 +26,8 @@ localized:
 
     home: ''
 
-    album: 'album/<>/'
-    albumCommentary: 'commentary/album/<>/'
-    albumGallery: 'album/<>/gallery/'
-    albumReferencedArtworks: 'album/<>/referenced-art/'
-    albumReferencingArtworks: 'album/<>/referencing-art/'
-
-    artTagInfo: 'tag/<>/info/'
-    artTagGallery: 'tag/<>/'
-
     artist: 'artist/<>/'
     artistGallery: 'artist/<>/gallery/'
-    artistRollingWindow: 'artist/<>/rolling-window/'
-
-    commentaryIndex: 'commentary/'
-
-    flashIndex: 'flash/'
-
-    flash: 'flash/<>/'
-
-    flashActGallery: 'flash-act/<>/'
-
-    groupInfo: 'group/<>/'
-    groupGallery: 'group/<>/gallery/'
 
     listingIndex: 'list/'
 
@@ -63,10 +38,6 @@ localized:
     newsEntry: 'news/<>/'
 
     staticPage: '<>/'
-
-    track: 'track/<>/'
-    trackReferencedArtworks: 'track/<>/referenced-art/'
-    trackReferencingArtworks: 'track/<>/referencing-art/'
 
 # This gets automatically switched in place when working from
 # a baseDirectory, so it should never be referenced manually.
@@ -124,17 +95,7 @@ media:
   paths:
   - *genericPaths
 
-  - albumAdditionalFile: 'album-additional/<>/<>'
-    albumBanner: 'album-art/<>/banner.<>'
-    albumCover: 'album-art/<>/cover.<>'
-    albumWallpaper: 'album-art/<>/bg.<>'
-    albumWallpaperPart: 'album-art/<>/<>'
-
-    artistAvatar: 'artist-avatar/<>.<>'
-
-    flashArt: 'flash-art/<>.<>'
-
-    trackCover: 'album-art/<>/<>.<>'
+  - artistAvatar: 'artist-avatar/<>.<>'
 
 thumb:
   prefix: 'thumb/'
