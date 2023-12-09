@@ -162,7 +162,6 @@ import {
 
 import dimensionsOf from 'image-size';
 
-import CacheableObject from '#cacheable-object';
 import {commandExists, isMain, promisifyProcess, traverse} from '#node-utils';
 import {sortByName} from '#sort';
 
@@ -1263,24 +1262,9 @@ export function getExpectedImagePaths(mediaPath, {urls, wikiData}) {
   const fromRoot = urls.from('media.root');
 
   const paths = [
-    wikiData.albumData
-      .flatMap(album => [
-        album.hasCoverArt && fromRoot.to('media.albumCover', album.directory, album.coverArtFileExtension),
-        !empty(CacheableObject.getUpdateValue(album, 'bannerArtistContribs')) && fromRoot.to('media.albumBanner', album.directory, album.bannerFileExtension),
-        !empty(CacheableObject.getUpdateValue(album, 'wallpaperArtistContribs')) && fromRoot.to('media.albumWallpaper', album.directory, album.wallpaperFileExtension),
-      ])
-      .filter(Boolean),
-
     wikiData.artistData
       .filter(artist => artist.hasAvatar)
       .map(artist => fromRoot.to('media.artistAvatar', artist.directory, artist.avatarFileExtension)),
-
-    wikiData.flashData
-      .map(flash => fromRoot.to('media.flashArt', flash.directory, flash.coverArtFileExtension)),
-
-    wikiData.trackData
-      .filter(track => track.hasUniqueCoverArt)
-      .map(track => fromRoot.to('media.trackCover', track.album.directory, track.directory, track.coverArtFileExtension)),
   ].flat();
 
   sortByName(paths, {getName: path => path});

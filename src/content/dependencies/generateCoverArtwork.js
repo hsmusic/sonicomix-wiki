@@ -1,5 +1,4 @@
 export default {
-  contentDependencies: ['image', 'linkArtistGallery'],
   extraDependencies: ['html'],
 
   slots: {

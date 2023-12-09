@@ -1,87 +1,37 @@
+import {sortByDate, sortEntryThingPairs} from '#sort';
 import {chunkByProperties, stitchArrays} from '#sugar';
-
-import {
-  sortAlbumsTracksChronologically,
-  sortByDate,
-  sortEntryThingPairs,
-} from '#sort';
 
 export default {
   contentDependencies: [
     'generateArtistInfoPageChunk',
     'generateArtistInfoPageChunkItem',
-    'linkAlbum',
-    'linkFlash',
-    'linkFlashAct',
-    'linkTrack',
+    'generateArtistInfoPageOtherArtistLinks',
     'transformContent',
   ],
 
-  extraDependencies: ['html', 'language'],
+  extraDependencies: ['html'],
 
   query(artist) {
+    // eslint-disable-next-line no-unused-vars
     const processEntry = ({
+      /* eslint-disable no-unused-vars */
       thing,
       entry,
 
       chunkType,
       itemType,
-
-      album = null,
-      track = null,
-      flashAct = null,
-      flash = null,
+      /* eslint-enable no-unused-vars */
     }) => ({
       thing: thing,
       entry: {
         chunkType,
         itemType,
 
-        album,
-        track,
-        flashAct,
-        flash,
-
         annotation: entry.annotation,
       },
     });
 
-    const processAlbumEntry = ({thing: album, entry}) =>
-      processEntry({
-        thing: album,
-        entry: entry,
-
-        chunkType: 'album',
-        itemType: 'album',
-
-        album: album,
-        track: null,
-      });
-
-    const processTrackEntry = ({thing: track, entry}) =>
-      processEntry({
-        thing: track,
-        entry: entry,
-
-        chunkType: 'album',
-        itemType: 'track',
-
-        album: track.album,
-        track: track,
-      });
-
-    const processFlashEntry = ({thing: flash, entry}) =>
-      processEntry({
-        thing: flash,
-        entry: entry,
-
-        chunkType: 'flash-act',
-        itemType: 'flash',
-
-        flashAct: flash.act,
-        flash: flash,
-      });
-
+    // eslint-disable-next-line no-unused-vars
     const processEntries = ({things, processEntry}) =>
       things
         .flatMap(thing =>
@@ -89,59 +39,15 @@ export default {
             .filter(entry => entry.artists.includes(artist))
             .map(entry => processEntry({thing, entry})));
 
-    const processAlbumEntries = ({albums}) =>
-      processEntries({
-        things: albums,
-        processEntry: processAlbumEntry,
-      });
-
-    const processTrackEntries = ({tracks}) =>
-      processEntries({
-        things: tracks,
-        processEntry: processTrackEntry,
-      });
-
-    const processFlashEntries = ({flashes}) =>
-      processEntries({
-        things: flashes,
-        processEntry: processFlashEntry,
-      });
-
-    const {
-      albumsAsCommentator,
-      tracksAsCommentator,
-      flashesAsCommentator,
-    } = artist;
-
-    const albumEntries =
-      processAlbumEntries({
-        albums: albumsAsCommentator,
-      });
-
-    const trackEntries =
-      processTrackEntries({
-        tracks: tracksAsCommentator,
-      });
-
-    const flashEntries =
-      processFlashEntries({
-        flashes: flashesAsCommentator,
-      })
-
-    const albumTrackEntries =
-      sortEntryThingPairs(
-        [...albumEntries, ...trackEntries],
-        sortAlbumsTracksChronologically);
-
     const allEntries =
       sortEntryThingPairs(
-        [...albumTrackEntries, ...flashEntries],
+        [],
         sortByDate);
 
     const chunks =
       chunkByProperties(
         allEntries.map(({entry}) => entry),
-        ['chunkType', 'album', 'flashAct']);
+        ['chunkType']);
 
     return {chunks};
   },
@@ -153,12 +59,7 @@ export default {
 
     chunkLinks:
       query.chunks
-        .map(({chunkType, album, flashAct}) =>
-          (chunkType === 'album'
-            ? relation('linkAlbum', album)
-         : chunkType === 'flash-act'
-            ? relation('linkFlashAct', flashAct)
-            : null)),
+        .map(() => null),
 
     items:
       query.chunks
@@ -168,12 +69,7 @@ export default {
     itemLinks:
       query.chunks
         .map(({chunk}) => chunk
-          .map(({track, flash}) =>
-            (track
-              ? relation('linkTrack', track)
-           : flash
-              ? relation('linkFlash', flash)
-              : null))),
+          .map(() => null)),
 
     itemAnnotations:
       query.chunks
@@ -199,6 +95,7 @@ export default {
     html.tag('dl',
       {[html.onlyIfContent]: true},
 
+      /* eslint-disable no-unused-vars */
       stitchArrays({
         chunk: relations.chunks,
         chunkLink: relations.chunkLinks,
@@ -218,55 +115,7 @@ export default {
           itemAnnotations,
           itemTypes,
         }) =>
-          language.encapsulate('artistPage.creditList.entry', capsule =>
-            (chunkType === 'album'
-              ? chunk.slots({
-                  mode: 'album',
-                  albumLink: chunkLink,
-                  items:
-                    stitchArrays({
-                      item: items,
-                      link: itemLinks,
-                      annotation: itemAnnotations,
-                      type: itemTypes,
-                    }).map(({item, link, annotation, type}) =>
-                      item.slots({
-                        annotation:
-                          (annotation
-                            ? annotation.slots({
-                                mode: 'inline',
-                                absorbPunctuationFollowingExternalLinks: false,
-                              })
-                            : null),
-
-                        content:
-                          (type === 'album'
-                            ? html.tag('i',
-                                language.$(capsule, 'album.commentary'))
-                            : language.$(capsule, 'track', {track: link})),
-                      })),
-                })
-           : chunkType === 'flash-act'
-              ? chunk.slots({
-                  mode: 'flash',
-                  flashActLink: chunkLink,
-                  items:
-                    stitchArrays({
-                      item: items,
-                      link: itemLinks,
-                      annotation: itemAnnotations,
-                    }).map(({item, link, annotation}) =>
-                      item.slots({
-                        annotation:
-                          (annotation
-                            ? annotation.slot('mode', 'inline')
-                            : null),
-
-                        content:
-                          language.$(capsule, 'flash', {
-                            flash: link,
-                          }),
-                      })),
-                })
-              : null)))),
+          language.encapsulate('artistPage.creditList.entry', _capsule =>
+            null))),
+      /* eslint-enable no-unused-vars */
 };

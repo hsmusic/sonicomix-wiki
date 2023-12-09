@@ -14,13 +14,7 @@ export default {
       wikiInfo.enableListings,
   }),
 
-  query: (_sprawl, artist) => ({
-    hasGallery:
-      !empty(artist.albumCoverArtistContributions) ||
-      !empty(artist.trackCoverArtistContributions),
-  }),
-
-  relations: (relation, query, _sprawl, artist) => ({
+  relations: (relation, _sprawl, artist) => ({
     switcher:
       relation('generateInterpageDotSwitcher'),
 
@@ -29,11 +23,6 @@ export default {
 
     artistInfoLink:
       relation('linkArtist', artist),
-
-    artistGalleryLink:
-      (query.hasGallery
-        ? relation('linkArtistGallery', artist)
-        : null),
   }),
 
   data: (_query, sprawl) => ({

@@ -2,41 +2,6 @@
 
 function getArtworkPath(thing) {
   switch (thing.constructor[Symbol.for('Thing.referenceType')]) {
-    case 'album': {
-      return [
-        'media.albumCover',
-        thing.directory,
-        thing.coverArtFileExtension,
-      ];
-    }
-
-    case 'flash': {
-      return [
-        'media.flashArt',
-        thing.directory,
-        thing.coverArtFileExtension,
-      ];
-    }
-
-    case 'track': {
-      if (thing.hasUniqueCoverArt) {
-        return [
-          'media.trackCover',
-          thing.album.directory,
-          thing.directory,
-          thing.coverArtFileExtension,
-        ];
-      } else if (thing.album.hasCoverArt) {
-        return [
-          'media.albumCover',
-          thing.album.directory,
-          thing.album.coverArtFileExtension,
-        ];
-      } else {
-        return null;
-      }
-    }
-
     default:
       return null;
   }
@@ -48,7 +13,7 @@ function prepareArtwork(thing, {
   urls,
 }) {
   const hasWarnings =
-    thing.artTags?.some(artTag => artTag.isContentWarning);
+    false;
 
   const artworkPath =
     getArtworkPath(thing);
@@ -88,28 +53,10 @@ function prepareArtwork(thing, {
 export const searchSpec = {
   generic: {
     query: ({
-      albumData,
-      artTagData,
       artistData,
-      flashData,
-      groupData,
-      trackData,
     }) => [
-      albumData,
-
-      artTagData,
-
       artistData
         .filter(artist => !artist.isAlias),
-
-      flashData,
-
-      groupData,
-
-      trackData
-        // Exclude rereleases - there's no reasonable way to differentiate
-        // them from the main release as part of this query.
-        .filter(track => !track.originalReleaseTrack),
     ].flat(),
 
     process(thing, opts) {
@@ -118,25 +65,14 @@ export const searchSpec = {
       fields.primaryName =
         thing.name;
 
-      const kind =
-        thing.constructor[Symbol.for('Thing.referenceType')];
-
       fields.parentName =
-        (kind === 'track'
-          ? thing.album.name
-       : kind === 'group'
-          ? thing.category.name
-       : kind === 'flash'
-          ? thing.act.name
-          : null);
+        null;
 
       fields.color =
         thing.color;
 
       fields.artTags =
-        (Object.hasOwn(thing, 'artTags')
-          ? thing.artTags.map(artTag => artTag.nameShort)
-          : []);
+        [];
 
       fields.additionalNames =
         (Object.hasOwn(thing, 'additionalNames')
@@ -145,13 +81,7 @@ export const searchSpec = {
           ? thing.aliasNames
           : []);
 
-      const contribKeys = [
-        'artistContribs',
-        'bannerArtistContribs',
-        'contributorContribs',
-        'coverArtistContribs',
-        'wallpaperArtistContribs',
-      ];
+      const contribKeys = [];
 
       const contributions =
         contribKeys
@@ -165,21 +95,8 @@ export const searchSpec = {
             ...artist.aliasNames,
           ]);
 
-      const groups =
-         (Object.hasOwn(thing, 'groups')
-           ? thing.groups
-        : Object.hasOwn(thing, 'album')
-           ? thing.album.groups
-           : []);
-
-      const mainContributorNames =
-        contributions
-          .map(({artist}) => artist.name);
-
       fields.groups =
-        groups
-          .filter(group => !mainContributorNames.includes(group.name))
-          .map(group => group.name);
+        [];
 
       fields.artwork =
         prepareArtwork(thing, opts);

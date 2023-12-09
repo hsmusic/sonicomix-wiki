@@ -4,7 +4,7 @@ import {withEntries} from '#sugar';
 // part of a build. This is so that multiple builds of a wiki can coexist
 // served from the same server / file system root: older builds' HTML files
 // refer to earlier values of STATIC_VERSION, avoiding name collisions.
-const STATIC_VERSION = '3p3';
+const STATIC_VERSION = '3p3-s'; /* "-s" - Soni/clean */
 
 const genericPaths = {
   root: '',
@@ -45,15 +45,6 @@ const urlSpec = {
 
       commentaryIndex: 'commentary/',
 
-      flashIndex: 'flash/',
-
-      flash: 'flash/<>/',
-
-      flashActGallery: 'flash-act/<>/',
-
-      groupInfo: 'group/<>/',
-      groupGallery: 'group/<>/gallery/',
-
       listingIndex: 'list/',
 
       listing: 'list/<>/',
@@ -63,12 +54,6 @@ const urlSpec = {
       newsEntry: 'news/<>/',
 
       staticPage: '<>/',
-
-      tag: 'tag/<>/',
-
-      track: 'track/<>/',
-      trackReferencedArtworks: 'track/<>/referenced-art/',
-      trackReferencingArtworks: 'track/<>/referencing-art/',
     },
   },
 
@@ -110,16 +95,7 @@ const urlSpec = {
     paths: {
       ...genericPaths,
 
-      albumAdditionalFile: 'album-additional/<>/<>',
-      albumBanner: 'album-art/<>/banner.<>',
-      albumCover: 'album-art/<>/cover.<>',
-      albumWallpaper: 'album-art/<>/bg.<>',
-
       artistAvatar: 'artist-avatar/<>.<>',
-
-      flashArt: 'flash-art/<>.<>',
-
-      trackCover: 'album-art/<>/<>.<>',
     },
   },
 

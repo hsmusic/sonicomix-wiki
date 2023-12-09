@@ -1,31 +1,21 @@
 import {sortAlphabetically, sortByCount} from '#sort';
-
-import {
-  accumulateSum,
-  empty,
-  filterByCount,
-  filterMultipleArrays,
-  stitchArrays,
-  unique,
-} from '#sugar';
+import {empty, filterByCount, filterMultipleArrays, stitchArrays}
+  from '#sugar';
 
 export default {
   contentDependencies: ['generateListingPage', 'linkArtist'],
   extraDependencies: ['html', 'language', 'wikiData'],
 
-  sprawl({artistData, wikiInfo}) {
+  sprawl({artistData}) {
     return {
       artistData,
-      enableFlashesAndGames: wikiInfo.enableFlashesAndGames,
     };
   },
 
   query(sprawl, spec) {
-    const query = {
-      spec,
-      enableFlashesAndGames: sprawl.enableFlashesAndGames,
-    };
+    const query = {spec};
 
+    // eslint-disable-next-line no-unused-vars
     const queryContributionInfo = (artistsKey, countsKey, fn) => {
       const artists =
         sortAlphabetically(
@@ -41,39 +31,6 @@ export default {
       query[countsKey] = counts;
     };
 
-    queryContributionInfo(
-      'artistsByTrackContributions',
-      'countsByTrackContributions',
-      artist =>
-        (unique(
-          ([
-            artist.trackArtistContributions,
-            artist.trackContributorContributions,
-          ]).flat()
-            .map(({thing}) => thing)
-        )).length);
-
-    queryContributionInfo(
-      'artistsByArtworkContributions',
-      'countsByArtworkContributions',
-      artist =>
-        accumulateSum(
-          [
-            artist.albumCoverArtistContributions,
-            artist.albumWallpaperArtistContributions,
-            artist.albumBannerArtistContributions,
-            artist.trackCoverArtistContributions,
-          ],
-          contribs => contribs.length));
-
-    if (sprawl.enableFlashesAndGames) {
-      queryContributionInfo(
-        'artistsByFlashContributions',
-        'countsByFlashContributions',
-        artist =>
-          artist.flashContributorContributions.length);
-    }
-
     return query;
   },
 
@@ -83,52 +40,23 @@ export default {
     relations.page =
       relation('generateListingPage', query.spec);
 
-    relations.artistLinksByTrackContributions =
-      query.artistsByTrackContributions
-        .map(artist => relation('linkArtist', artist));
-
-    relations.artistLinksByArtworkContributions =
-      query.artistsByArtworkContributions
-        .map(artist => relation('linkArtist', artist));
-
-    if (query.enableFlashesAndGames) {
-      relations.artistLinksByFlashContributions =
-        query.artistsByFlashContributions
-          .map(artist => relation('linkArtist', artist));
-    }
-
     return relations;
   },
 
-  data(query) {
+  data() {
     const data = {};
-
-    data.enableFlashesAndGames = query.enableFlashesAndGames;
-
-    data.countsByTrackContributions = query.countsByTrackContributions;
-    data.countsByArtworkContributions = query.countsByArtworkContributions;
-
-    if (query.enableFlashesAndGames) {
-      data.countsByFlashContributions = query.countsByFlashContributions;
-    }
 
     return data;
   },
 
   generate(data, relations, {language}) {
-    const listChunkIDs = ['tracks', 'artworks'];
-    const listTitleStringsKeys = ['trackContributors', 'artContributors'];
-    const listCountFunctions = ['countTracks', 'countArtworks'];
+    const listChunkIDs = [];
+    const listTitleStringsKeys = [];
+    const listCountFunctions = [];
 
-    const listArtistLinks = [
-      relations.artistLinksByTrackContributions,
-      relations.artistLinksByArtworkContributions,
-    ];
+    const listArtistLinks = [];
 
-    const listArtistCounts = [
-      data.countsByTrackContributions,
-      data.countsByArtworkContributions,
-    ];
+    const listArtistCounts = [];
 
     if (data.enableFlashesAndGames) {
       listChunkIDs.push('flashes');

@@ -1,5 +1,3 @@
-import {getTotalDuration} from '#wiki-data';
-
 export default {
   contentDependencies: [
     'generateListingIndexList',
@@ -9,12 +7,9 @@ export default {
 
   extraDependencies: ['html', 'language', 'wikiData'],
 
-  sprawl({albumData, trackData, wikiInfo}) {
+  sprawl({wikiInfo}) {
     return {
       wikiName: wikiInfo.name,
-      numTracks: trackData.length,
-      numAlbums: albumData.length,
-      totalDuration: getTotalDuration(trackData),
     };
   },
 
@@ -36,9 +31,6 @@ export default {
   data(sprawl) {
     return {
       wikiName: sprawl.wikiName,
-      numTracks: sprawl.numTracks,
-      numAlbums: sprawl.numAlbums,
-      totalDuration: sprawl.totalDuration,
     };
   },
 
@@ -52,21 +44,6 @@ export default {
         html.tag('p',
           language.$('listingIndex.infoLine', {
             wiki: data.wikiName,
-
-            tracks:
-              html.tag('b',
-                language.countTracks(data.numTracks, {unit: true})),
-
-            albums:
-              html.tag('b',
-                language.countAlbums(data.numAlbums, {unit: true})),
-
-            duration:
-              html.tag('b',
-                language.formatDuration(data.totalDuration, {
-                  approximate: true,
-                  unit: true,
-                })),
           })),
 
         html.tag('hr'),

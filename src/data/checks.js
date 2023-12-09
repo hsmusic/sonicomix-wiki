@@ -7,9 +7,7 @@ import CacheableObject from '#cacheable-object';
 import {replacerSpec, parseInput} from '#replacer';
 import {compareArrays, cut, cutStart, empty, getNestedProp, iterateMultiline}
   from '#sugar';
-import Thing from '#thing';
-import thingConstructors from '#things';
-import {combineWikiDataArrays, commentaryRegexCaseSensitive} from '#wiki-data';
+import {commentaryRegexCaseSensitive} from '#wiki-data';
 
 import {
   annotateErrorWithIndex,
@@ -175,61 +173,7 @@ export function filterReferenceErrors(wikiData, {
   find,
   bindFind,
 }) {
-  const referenceSpec = [
-    ['albumData', {
-      artistContribs: '_contrib',
-      coverArtistContribs: '_contrib',
-      trackCoverArtistContribs: '_contrib',
-      wallpaperArtistContribs: '_contrib',
-      bannerArtistContribs: '_contrib',
-      groups: 'group',
-      artTags: '_artTag',
-      referencedArtworks: '_artwork',
-      commentary: '_commentary',
-    }],
-
-    ['flashData', {
-      commentary: '_commentary',
-    }],
-
-    ['groupCategoryData', {
-      groups: 'group',
-    }],
-
-    ['homepageLayout.rows', {
-      sourceGroup: '_homepageSourceGroup',
-      sourceAlbums: 'album',
-    }],
-
-    ['flashData', {
-      contributorContribs: '_contrib',
-      featuredTracks: 'track',
-    }],
-
-    ['flashActData', {
-      flashes: 'flash',
-    }],
-
-    ['groupData', {
-      serieses: '_serieses',
-    }],
-
-    ['trackData', {
-      artistContribs: '_contrib',
-      contributorContribs: '_contrib',
-      coverArtistContribs: '_contrib',
-      referencedTracks: '_trackNotRerelease',
-      sampledTracks: '_trackNotRerelease',
-      artTags: '_artTag',
-      referencedArtworks: '_artwork',
-      originalReleaseTrack: '_trackNotRerelease',
-      commentary: '_commentary',
-    }],
-
-    ['wikiInfo', {
-      divideTrackListsByGroups: 'group',
-    }],
-  ];
+  const referenceSpec = [];
 
   const boundFind = bindFind(wikiData, {mode: 'error'});
   const findArtistOrAlias = bindFindArtistOrAlias(boundFind);
@@ -288,28 +232,6 @@ export function filterReferenceErrors(wikiData, {
             let findFn;
 
             switch (findFnKey) {
-              case '_artwork': {
-                const mixed =
-                  find.mixed({
-                    album: find.albumWithArtwork,
-                    track: find.trackWithArtwork,
-                  });
-
-                const data =
-                  combineWikiDataArrays([
-                    wikiData.albumData,
-                    wikiData.trackData,
-                  ]);
-
-                findFn = ref => mixed(ref.reference, data, {mode: 'error'});
-
-                break;
-              }
-
-              case '_artTag':
-                findFn = boundFind.artTag;
-                break;
-
               case '_commentary':
                 findFn = findArtistOrAlias;
                 break;
@@ -318,80 +240,18 @@ export function filterReferenceErrors(wikiData, {
                 findFn = contribRef => findArtistOrAlias(contribRef.artist);
                 break;
 
-              case '_homepageSourceGroup':
-                findFn = groupRef => {
-                  if (groupRef === 'new-additions' || groupRef === 'new-releases') {
-                    return true;
-                  }
-
-                  return boundFind.group(groupRef);
-                };
-                break;
-
-              case '_serieses':
-                findFn = boundFind.album;
-                break;
-
-              case '_trackArtwork':
-                findFn = ref => boundFind.track(ref.reference);
-                break;
-
-              case '_trackNotRerelease':
-                findFn = trackRef => {
-                  const track = boundFind.track(trackRef);
-                  const originalRef = track && CacheableObject.getUpdateValue(track, 'originalReleaseTrack');
-
-                  if (originalRef) {
-                    // It's possible for the original to not actually exist, in this case.
-                    // It should still be reported since the 'Originally Released As' field
-                    // was present.
-                    const original = boundFind.track(originalRef, {mode: 'quiet'});
-
-                    // Prefer references by name, but only if it's unambiguous.
-                    const originalByName =
-                      (original
-                        ? boundFind.track(original.name, {mode: 'quiet'})
-                        : null);
-
-                    const shouldBeMessage =
-                      (originalByName
-                        ? colors.green(original.name)
-                     : original
-                        ? colors.green('track:' + original.directory)
-                        : colors.green(originalRef));
-
-                    throw new Error(`Reference ${colors.red(trackRef)} is to a rerelease, should be ${shouldBeMessage}`);
-                  }
-
-                  return track;
-                };
-                break;
-
               default:
                 findFn = boundFind[findFnKey];
                 break;
             }
 
-            const suppress = fn => conditionallySuppressError(error => {
-              if (property === 'sampledTracks') {
-                // Suppress "didn't match anything" errors in particular, just for samples.
-                // In hsmusic-data we have a lot of "stub" sample data which don't have
-                // corresponding tracks yet, so it won't be useful to report such reference
-                // errors until we take the time to address that. But other errors, like
-                // malformed reference strings or miscapitalized existing tracks, should
-                // still be reported, as samples of existing tracks *do* display on the
-                // website!
-                if (error.message.includes(`Didn't match anything`)) {
-                  return true;
-                }
-              }
-
+            const suppress = fn => conditionallySuppressError(_error => {
               return false;
             }, fn);
 
             const fieldPropertyMessage =
               getFieldPropertyMessage(
-                thing.constructor[Thing.yamlDocumentSpec],
+                thing.constructor[Symbol.for('Thing.yamlDocumentSpec')],
                 property);
 
             const findFnMessage =
@@ -407,37 +267,6 @@ export function filterReferenceErrors(wikiData, {
             let newPropertyValue = value;
 
             determineNewPropertyValue: {
-              // TODO: The special-casing for artTag is obviously a bit janky.
-              // It would be nice if this could be moved to processDocument ala
-              // fieldCombinationErrors, but art tags are only an error if the
-              // thing doesn't have an artwork - which can't be determined from
-              // the track document on its own, thanks to inheriting contribs
-              // from the album.
-              if (findFnKey === '_artTag') {
-                let hasCoverArtwork =
-                  !empty(CacheableObject.getUpdateValue(thing, 'coverArtistContribs'));
-
-                if (thing.constructor === thingConstructors.Track) {
-                  if (thing.album) {
-                    hasCoverArtwork ||=
-                      !empty(CacheableObject.getUpdateValue(thing.album, 'trackCoverArtistContribs'));
-                  }
-
-                  if (thing.disableUniqueCoverArt) {
-                    hasCoverArtwork = false;
-                  }
-                }
-
-                if (!hasCoverArtwork) {
-                  nest({message: errorMessage}, ({push}) => {
-                    push(new TypeError(`No cover artwork, so this shouldn't have art tags specified`));
-                  });
-
-                  newPropertyValue = [];
-                  break determineNewPropertyValue;
-                }
-              }
-
               if (findFnKey === '_commentary') {
                 filter(
                   value, {message: errorMessage},
@@ -535,10 +364,7 @@ export class ContentNodeError extends Error {
 export function reportContentTextErrors(wikiData, {
   bindFind,
 }) {
-  const additionalFileShape = {
-    description: 'description',
-  };
-
+  // eslint-disable-next-line no-unused-vars
   const commentaryShape = {
     body: 'commentary body',
     artistDisplayText: 'commentary artist display text',
@@ -546,29 +372,8 @@ export function reportContentTextErrors(wikiData, {
   };
 
   const contentTextSpec = [
-    ['albumData', {
-      additionalFiles: additionalFileShape,
-      commentary: commentaryShape,
-    }],
-
     ['artistData', {
       contextNotes: '_content',
-    }],
-
-    ['flashData', {
-      commentary: commentaryShape,
-    }],
-
-    ['flashActData', {
-      listTerminology: '_content',
-    }],
-
-    ['flashSideData', {
-      listTerminology: '_content',
-    }],
-
-    ['groupData', {
-      description: '_content',
     }],
 
     ['homepageLayout', {
@@ -581,15 +386,6 @@ export function reportContentTextErrors(wikiData, {
 
     ['staticPageData', {
       content: '_content',
-    }],
-
-    ['trackData', {
-      additionalFiles: additionalFileShape,
-      commentary: commentaryShape,
-      creditSources: commentaryShape,
-      lyrics: '_content',
-      midiProjectFiles: additionalFileShape,
-      sheetMusicFiles: additionalFileShape,
     }],
 
     ['wikiInfo', {
@@ -724,7 +520,7 @@ export function reportContentTextErrors(wikiData, {
 
               const fieldPropertyMessage =
                 getFieldPropertyMessage(
-                  thing.constructor[Thing.yamlDocumentSpec],
+                  thing.constructor[Symbol.for('Thing.yamlDocumentSpec')],
                   property);
 
               const topMessage =
