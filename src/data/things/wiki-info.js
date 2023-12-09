@@ -1,7 +1,6 @@
 export const WIKI_INFO_FILE = 'wiki-info.yaml';
 
 import {input} from '#composite';
-import find from '#find';
 import Thing from '#thing';
 import {parseContributionPresets} from '#yaml';
 
@@ -15,13 +14,12 @@ import {
 } from '#validators';
 
 import {exitWithoutDependency} from '#composite/control-flow';
-import {contentString, flag, name, referenceList, wikiData}
-  from '#composite/wiki-properties';
+import {contentString, flag, name} from '#composite/wiki-properties';
 
 export class WikiInfo extends Thing {
   static [Thing.friendlyName] = `Wiki Info`;
 
-  static [Thing.getPropertyDescriptors] = ({Group}) => ({
+  static [Thing.getPropertyDescriptors] = () => ({
     // Update & expose
 
     name: name('Unnamed Wiki'),
@@ -69,23 +67,15 @@ export class WikiInfo extends Thing {
       },
     },
 
-    divideTrackListsByGroups: referenceList({
-      class: input.value(Group),
-      find: input.value(find.group),
-      data: 'groupData',
-    }),
-
     contributionPresets: {
       flags: {update: true, expose: true},
       update: {validate: isContributionPresetList},
     },
 
     // Feature toggles
-    enableFlashesAndGames: flag(false),
+
     enableListings: flag(false),
     enableNews: flag(false),
-    enableArtTagUI: flag(false),
-    enableGroupUI: flag(false),
 
     enableSearch: [
       exitWithoutDependency({
@@ -106,10 +96,6 @@ export class WikiInfo extends Thing {
         default: false,
       },
     },
-
-    groupData: wikiData({
-      class: input.value(Group),
-    }),
   });
 
   static [Thing.yamlDocumentSpec] = {
@@ -121,12 +107,8 @@ export class WikiInfo extends Thing {
       'Footer Content': {property: 'footerContent'},
       'Default Language': {property: 'defaultLanguage'},
       'Canonical Base': {property: 'canonicalBase'},
-      'Divide Track Lists By Groups': {property: 'divideTrackListsByGroups'},
-      'Enable Flashes & Games': {property: 'enableFlashesAndGames'},
       'Enable Listings': {property: 'enableListings'},
       'Enable News': {property: 'enableNews'},
-      'Enable Art Tag UI': {property: 'enableArtTagUI'},
-      'Enable Group UI': {property: 'enableGroupUI'},
 
       'Contribution Presets': {
         property: 'contributionPresets',

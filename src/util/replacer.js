@@ -11,21 +11,6 @@ import * as html from '#html';
 import {escapeRegex, typeAppearance} from '#sugar';
 
 export const replacerSpec = {
-  'album': {
-    find: 'album',
-    link: 'linkAlbumDynamically',
-  },
-
-  'album-commentary': {
-    find: 'album',
-    link: 'linkAlbumCommentary',
-  },
-
-  'album-gallery': {
-    find: 'album',
-    link: 'linkAlbumGallery',
-  },
-
   'artist': {
     find: 'artist',
     link: 'linkArtist',
@@ -48,40 +33,6 @@ export const replacerSpec = {
       html.tag('time',
         {datetime: date.toUTCString()},
         language.formatDate(date)),
-  },
-
-  'flash-index': {
-    find: null,
-    link: 'linkFlashIndex',
-  },
-
-  'flash': {
-    find: 'flash',
-    link: 'linkFlash',
-    transformName(name, node, input) {
-      const nextCharacter = input[node.iEnd];
-      const lastCharacter = name[name.length - 1];
-      if (![' ', '\n', '<'].includes(nextCharacter) && lastCharacter === '.') {
-        return name.slice(0, -1);
-      } else {
-        return name;
-      }
-    },
-  },
-
-  'flash-act': {
-    find: 'flashAct',
-    link: 'linkFlashAct',
-  },
-
-  'group': {
-    find: 'group',
-    link: 'linkGroup',
-  },
-
-  'group-gallery': {
-    find: 'group',
-    link: 'linkGroupGallery',
   },
 
   'home': {
@@ -133,16 +84,6 @@ export const replacerSpec = {
     find: null,
     value: (ref) => ref,
     html: (ref, {language, args}) => language.$(ref, args),
-  },
-
-  'tag': {
-    find: 'artTag',
-    link: 'linkArtTag',
-  },
-
-  'track': {
-    find: 'track',
-    link: 'linkTrackDynamically',
   },
 };
 

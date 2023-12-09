@@ -354,57 +354,6 @@ export function prepareAndSort(sources, prepareForSort, sortFunction) {
 // Highly contextual sort functions - these are only for very specific types
 // of Things, and have appropriately hard-coded behavior.
 
-// Sorts so that tracks from the same album are generally grouped together in
-// their original (album track list) order, while prioritizing date (by default
-// release date but can be overridden) above all else.
-//
-// This function also works for data lists which contain only tracks.
-export function sortAlbumsTracksChronologically(data, {
-  latestFirst = false,
-  getDate,
-} = {}) {
-  // Sort albums before tracks...
-  sortByConditions(data, [(t) => t.album === undefined]);
-
-  // Group tracks by album...
-  sortByDirectory(data, {
-    getDirectory: (t) => (t.album ? t.album.directory : t.directory),
-  });
-
-  // Sort tracks by position in album...
-  sortByPositionInAlbum(data);
-
-  // ...and finally sort by date. If tracks from more than one album were
-  // released on the same date, they'll still be grouped together by album,
-  // and tracks within an album will retain their relative positioning (i.e.
-  // stay in the same order as part of the album's track listing).
-  sortByDate(data, {latestFirst, getDate});
-
-  return data;
-}
-
-export function sortFlashesChronologically(data, {
-  latestFirst = false,
-  getDate,
-} = {}) {
-  // Group flashes by act...
-  sortAlphabetically(data, {
-    getName: flash => flash.act.name,
-    getDirectory: flash => flash.act.directory,
-  });
-
-  // Sort flashes by position in act...
-  sortByPositionInFlashAct(data);
-
-  // ...and finally sort by date. If flashes from more than one act were
-  // released on the same date, they'll still be grouped together by act,
-  // and flashes within an act will retain their relative positioning (i.e.
-  // stay in the same order as the act's flash listing).
-  sortByDate(data, {latestFirst, getDate});
-
-  return data;
-}
-
 export function sortContributionsChronologically(data, sortThings, {
   latestFirst = false,
 } = {}) {

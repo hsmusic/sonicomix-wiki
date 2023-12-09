@@ -3,7 +3,6 @@ export default {
     'generatePageLayout',
     'generatePageSidebar',
     'generatePageSidebarBox',
-    'generateWikiHomeAlbumsRow',
     'generateWikiHomeNewsBox',
     'transformContent',
   ],
@@ -49,8 +48,6 @@ export default {
     relations.contentRows =
       homepageLayout.rows.map(row => {
         switch (row.type) {
-          case 'albums':
-            return relation('generateWikiHomeAlbumsRow', row);
           default:
             return null;
         }

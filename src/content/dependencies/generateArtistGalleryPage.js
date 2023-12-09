@@ -1,4 +1,3 @@
-import {sortAlbumsTracksChronologically} from '#sort';
 import {stitchArrays} from '#sugar';
 
 export default {
@@ -7,25 +6,12 @@ export default {
     'generateCoverGrid',
     'generatePageLayout',
     'image',
-    'linkAlbum',
-    'linkTrack',
   ],
 
   extraDependencies: ['html', 'language'],
 
-  query(artist) {
-    const things =
-      ([
-        artist.albumCoverArtistContributions,
-        artist.trackCoverArtistContributions,
-      ]).flat()
-        .filter(({annotation}) => !annotation?.startsWith(`edits for wiki`))
-        .map(({thing}) => thing);
-
-    sortAlbumsTracksChronologically(things, {
-      latestFirst: true,
-      getDate: thing => thing.coverArtDate ?? thing.date,
-    });
+  query(_artist) {
+    const things = [];
 
     return {things};
   },
@@ -43,14 +29,12 @@ export default {
       relation('generateCoverGrid');
 
     relations.links =
-      query.things.map(thing =>
-        (thing.album
-          ? relation('linkTrack', thing)
-          : relation('linkAlbum', thing)));
+      query.things
+        .map(_thing => null);
 
     relations.images =
-      query.things.map(thing =>
-        relation('image', thing.artTags));
+      query.things
+        .map(_thing => relation('image'));
 
     return relations;
   },
@@ -66,21 +50,13 @@ export default {
       query.things.map(thing => thing.name);
 
     data.paths =
-      query.things.map(thing =>
-        (thing.album
-          ? ['media.trackCover', thing.album.directory, thing.directory, thing.coverArtFileExtension]
-          : ['media.albumCover', thing.directory, thing.coverArtFileExtension]));
+      query.things.map(_thing => null);
 
     data.dimensions =
-      query.things.map(thing => thing.coverArtDimensions);
+      query.things.map(_thing => null);
 
     data.otherCoverArtists =
-      query.things.map(thing =>
-        (thing.coverArtistContribs.length > 1
-          ? thing.coverArtistContribs
-              .filter(({artist: otherArtist}) => otherArtist !== artist)
-              .map(({artist: otherArtist}) => otherArtist.name)
-          : null));
+      query.things.map(_thing => null);
 
     return data;
   },

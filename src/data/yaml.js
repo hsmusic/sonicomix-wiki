@@ -1212,76 +1212,11 @@ export async function loadAndProcessDataDocuments(dataSteps, {dataPath}) {
 // of which are required for page HTML generation and other expected behavior).
 export function linkWikiDataArrays(wikiData) {
   const linkWikiDataSpec = new Map([
-    [wikiData.albumData, [
-      'albumData',
-      'artTagData',
-      'artistData',
-      'groupData',
-      'trackData',
-      'wikiInfo',
-    ]],
-
-    [wikiData.artTagData, [
-      'albumData',
-      'trackData',
-    ]],
-
     [wikiData.artistData, [
-      'albumData',
       'artistData',
-      'flashData',
-      'groupData',
-      'trackData',
     ]],
 
-    [wikiData.flashData, [
-      'artistData',
-      'flashActData',
-      'trackData',
-      'wikiInfo',
-    ]],
-
-    [wikiData.flashActData, [
-      'flashData',
-      'flashSideData',
-    ]],
-
-    [wikiData.flashSideData, [
-      'flashActData',
-    ]],
-
-    [wikiData.groupData, [
-      'albumData',
-      'artistData',
-      'groupCategoryData',
-    ]],
-
-    [wikiData.groupCategoryData, [
-      'groupData',
-    ]],
-
-    [wikiData.homepageLayout?.rows, [
-      'albumData',
-      'groupData',
-    ]],
-
-    [wikiData.trackData, [
-      'albumData',
-      'artTagData',
-      'artistData',
-      'flashData',
-      'trackData',
-      'trackSectionData',
-      'wikiInfo',
-    ]],
-
-    [wikiData.trackSectionData, [
-      'albumData',
-    ]],
-
-    [[wikiData.wikiInfo], [
-      'groupData',
-    ]],
+    [wikiData.homepageLayout?.rows, []],
   ]);
 
   for (const [things, keys] of linkWikiDataSpec.entries()) {

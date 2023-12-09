@@ -7,13 +7,10 @@ import {colors} from '#cli';
 import {input} from '#composite';
 import find from '#find';
 import {sortAlphabetically} from '#sort';
-import {stitchArrays, unique} from '#sugar';
+import {stitchArrays} from '#sugar';
 import Thing from '#thing';
 import {isName, validateArrayItems} from '#validators';
 import {getKebabCase} from '#wiki-data';
-
-import {exposeDependency} from '#composite/control-flow';
-import {withReverseContributionList} from '#composite/wiki-data';
 
 import {
   contentString,
@@ -21,21 +18,16 @@ import {
   fileExtension,
   flag,
   name,
-  reverseAnnotatedReferenceList,
-  reverseContributionList,
-  reverseReferenceList,
   singleReference,
   urls,
   wikiData,
 } from '#composite/wiki-properties';
 
-import {artistTotalDuration} from '#composite/things/artist';
-
 export class Artist extends Thing {
   static [Thing.referenceType] = 'artist';
   static [Thing.wikiDataArray] = 'artistData';
 
-  static [Thing.getPropertyDescriptors] = ({Album, Flash, Group, Track}) => ({
+  static [Thing.getPropertyDescriptors] = () => ({
     // Update & expose
 
     name: name('Unnamed Artist'),
@@ -63,92 +55,9 @@ export class Artist extends Thing {
 
     // Update only
 
-    albumData: wikiData({
-      class: input.value(Album),
-    }),
-
     artistData: wikiData({
       class: input.value(Artist),
     }),
-
-    flashData: wikiData({
-      class: input.value(Flash),
-    }),
-
-    groupData: wikiData({
-      class: input.value(Group),
-    }),
-
-    trackData: wikiData({
-      class: input.value(Track),
-    }),
-
-    // Expose only
-
-    trackArtistContributions: reverseContributionList({
-      data: 'trackData',
-      list: input.value('artistContribs'),
-    }),
-
-    trackContributorContributions: reverseContributionList({
-      data: 'trackData',
-      list: input.value('contributorContribs'),
-    }),
-
-    trackCoverArtistContributions: reverseContributionList({
-      data: 'trackData',
-      list: input.value('coverArtistContribs'),
-    }),
-
-    tracksAsCommentator: reverseReferenceList({
-      data: 'trackData',
-      list: input.value('commentatorArtists'),
-    }),
-
-    albumArtistContributions: reverseContributionList({
-      data: 'albumData',
-      list: input.value('artistContribs'),
-    }),
-
-    albumCoverArtistContributions: reverseContributionList({
-      data: 'albumData',
-      list: input.value('coverArtistContribs'),
-    }),
-
-    albumWallpaperArtistContributions: reverseContributionList({
-      data: 'albumData',
-      list: input.value('wallpaperArtistContribs'),
-    }),
-
-    albumBannerArtistContributions: reverseContributionList({
-      data: 'albumData',
-      list: input.value('bannerArtistContribs'),
-    }),
-
-    albumsAsCommentator: reverseReferenceList({
-      data: 'albumData',
-      list: input.value('commentatorArtists'),
-    }),
-
-    flashContributorContributions: reverseContributionList({
-      data: 'flashData',
-      list: input.value('contributorContribs'),
-    }),
-
-    flashesAsCommentator: reverseReferenceList({
-      data: 'flashData',
-      list: input.value('commentatorArtists'),
-    }),
-
-    closelyLinkedGroups: reverseAnnotatedReferenceList({
-      data: 'groupData',
-      list: input.value('closelyLinkedArtists'),
-
-      forward: input.value('artist'),
-      backward: input.value('group'),
-    }),
-
-    totalDuration: artistTotalDuration(),
   });
 
   static [Thing.getSerializeDescriptors] = ({

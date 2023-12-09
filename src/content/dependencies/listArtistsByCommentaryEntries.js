@@ -15,9 +15,7 @@ export default {
         artistData.filter(artist => !artist.isAlias));
 
     const counts =
-      artists.map(artist =>
-        artist.tracksAsCommentator.length +
-        artist.albumsAsCommentator.length);
+      artists.map(() => 0);
 
     filterByCount(artists, counts);
     sortByCount(artists, counts, {greatestFirst: true});
