@@ -55,6 +55,11 @@ export class Artist extends Thing {
 
     // Expose only
 
+    storiesAsWriter:
+      Artist.filterByContrib('storyData', 'storyContribs'),
+
+    storiesAsArtist:
+      Artist.filterByContrib('storyData', 'artContribs'),
   });
 
   static [Thing.getSerializeDescriptors] = ({

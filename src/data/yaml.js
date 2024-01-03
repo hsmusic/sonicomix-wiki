@@ -1277,6 +1277,7 @@ export function linkWikiDataArrays(wikiData, {
   const linkWikiDataSpec = new Map([
     [wikiData.artistData, [
       'artistData',
+      'storyData',
     ]],
 
     [wikiData.characterData, [
