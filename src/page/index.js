@@ -1,5 +1,6 @@
 export * as artist from './artist.js';
 export * as artistAlias from './artist-alias.js';
+export * as character from './character.js';
 export * as homepage from './homepage.js';
 export * as issue from './issue.js';
 export * as listing from './listing.js';

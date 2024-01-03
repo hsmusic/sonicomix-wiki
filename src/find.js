@@ -196,6 +196,7 @@ export function bindFind(wikiData, opts1) {
   return Object.fromEntries(
     Object.entries({
       artist: 'artistData',
+      character: 'characterData',
       issue: 'issueData',
       listing: 'listingSpec',
       newsEntry: 'newsData',

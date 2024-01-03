@@ -46,6 +46,7 @@ function inspect(value, opts = {}) {
 
 export const ART_TAG_DATA_FILE = 'tags.yaml';
 export const ARTIST_DATA_FILE = 'artists.yaml';
+export const CHARACTER_DATA_FILE = 'characters.yaml';
 export const HOMEPAGE_LAYOUT_DATA_FILE = 'homepage.yaml';
 export const NEWS_DATA_FILE = 'news.yaml';
 export const PUBLISHER_DATA_FILE = 'publishers.yaml';
@@ -407,6 +408,16 @@ export const processArtistDocument = makeProcessDocument(T.Artist, {
   ignoredFields: ['Dead URLs'],
 });
 
+export const processCharacterDocument = makeProcessDocument(T.Character, {
+  propertyFieldMapping: {
+    name: 'Character',
+    directory: 'Directory',
+    shortName: 'Short Name',
+
+    color: 'Color',
+  },
+});
+
 export const processIssueDocument = makeProcessDocument(T.Issue, {
   fieldTransformations: {
     'Date': (value) => new Date(value),
@@ -461,10 +472,21 @@ export const processStaticPageDocument = makeProcessDocument(T.StaticPage, {
 });
 
 export const processStoryDocument = makeProcessDocument(T.Story, {
+  fieldTransformations: {
+    'Art By': parseContributors,
+    'Featured Characters': parseFeaturedCharacters,
+    'Story By': parseContributors,
+  },
+
   propertyFieldMapping: {
     name: 'Story',
     directory: 'Directory',
     publisher: 'Publisher',
+
+    storyContribs: 'Story By',
+    artContribs: 'Art By',
+
+    featuredCharacters: 'Featured Characters',
   },
 });
 
@@ -609,6 +631,27 @@ export function parseArtworks(artworks) {
   }));
 }
 
+export function parseFeaturedCharacters(featuredCharacterStrings) {
+  if (!Array.isArray(featuredCharacterStrings)) {
+    return featuredCharacterStrings;
+  }
+
+  return featuredCharacterStrings.map(item => {
+    if (typeof item === 'object' && item['Name'])
+      return {who: item['Who'], how: item['How'] ?? null};
+
+    if (typeof item !== 'string') return item;
+
+    const match = item.match(extractAccentRegex);
+    if (!match) return item;
+
+    return {
+      who: match.groups.main,
+      how: match.groups.accent ?? null,
+    };
+  });
+}
+
 function parseDimensions(string) {
   // It's technically possible to pass an array like [30, 40] through here.
   // That's not really an issue because if it isn't of the appropriate shape,
@@ -720,6 +763,18 @@ export const dataSteps = [
       }
 
       return {wikiInfo};
+    },
+  },
+
+  {
+    title: `Process characters file`,
+    file: CHARACTER_DATA_FILE,
+
+    documentMode: documentModes.allInOne,
+    processDocument: processCharacterDocument,
+
+    save(results) {
+      return {characterData: results};
     },
   },
 
@@ -1224,6 +1279,10 @@ export function linkWikiDataArrays(wikiData, {
       'artistData',
     ]],
 
+    [wikiData.characterData, [
+      'storyData',
+    ]],
+
     [wikiData.homepageLayout?.rows, [
       'issueData',
       'publisherData',
@@ -1241,6 +1300,7 @@ export function linkWikiDataArrays(wikiData, {
     ]],
 
     [wikiData.storyData, [
+      'artistData',
       'characterData',
       'issueData',
       'publisherData',
@@ -1359,15 +1419,18 @@ export function filterDuplicateDirectories(wikiData) {
 export function filterReferenceErrors(wikiData) {
   const referenceSpec = [
     ['issueData', processIssueDocument, {
+      coverArtworks: '_artwork',
       publisher: 'publisher',
-      coverArtworks: '_artworks',
       featuredStories: 'story',
     }],
 
     ['publisherData', processPublisherDocument, {}],
 
     ['storyData', processStoryDocument, {
+      artContribs: '_contrib',
+      featuredCharacters: '_featuredCharacter',
       publisher: 'publisher',
+      storyContribs: '_contrib',
     }],
   ];
 
@@ -1414,7 +1477,7 @@ export function filterReferenceErrors(wikiData) {
                 writeProperty = false;
                 break;
 
-              case '_artworks':
+              case '_artwork':
                 if (value) {
                   value =
                     value.map(({artistContribs}) =>
@@ -1449,13 +1512,17 @@ export function filterReferenceErrors(wikiData) {
             };
 
             switch (findFnKey) {
-              case '_artworks':
+              case '_artwork':
               case '_commentary':
                 findFn = findArtistOrAlias;
                 break;
 
               case '_contrib':
                 findFn = contribRef => findArtistOrAlias(contribRef.who);
+                break;
+
+              case '_featuredCharacter':
+                findFn = ({who}) => boundFind.character(who);
                 break;
 
               case '_homepageSourceGroup':
@@ -1538,7 +1605,7 @@ export function filterReferenceErrors(wikiData) {
 
             let newPropertyValue = value;
 
-            if (findFnKey === '_commentary' || findFnKey === '_artworks') {
+            if (findFnKey === '_commentary' || findFnKey === '_artwork') {
               const message =
                 (findFnKey === '_commentary'
                   ? `Errors in entry's artist references`

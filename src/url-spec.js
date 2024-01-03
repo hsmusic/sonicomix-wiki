@@ -28,6 +28,8 @@ const urlSpec = {
       artist: 'artist/<>/',
       artistGallery: 'artist/<>/gallery/',
 
+      character: 'character/<>/',
+
       commentaryIndex: 'commentary/',
 
       issue: 'issue/<>/<>/',

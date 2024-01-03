@@ -6,6 +6,8 @@ export default {
     'generateContentHeading',
     'generateIssueCoverArtworkGallery',
     'generatePageLayout',
+    'generateReleaseInfoContributionsLine',
+    'linkFeaturedCharacter',
     'linkIssue',
     'linkPublisher',
   ],
@@ -40,6 +42,12 @@ export default {
         relation('linkIssue', query.featuredInIssues[0]);
     }
 
+    sec.releaseInfo.storyContributionsLine =
+      relation('generateReleaseInfoContributionsLine', story.storyContribs);
+
+    sec.releaseInfo.artContributionsLine =
+      relation('generateReleaseInfoContributionsLine', story.artContribs);
+
     if (query.featuredInIssues.length >= 2) {
       sec.featuredInIssues = {};
 
@@ -60,9 +68,9 @@ export default {
       sec.featuredCharacters.heading =
         relation('generateContentHeading');
 
-      sec.featuredCharacters.storyLinks =
+      sec.featuredCharacters.characterLinks =
         story.featuredCharacters
-          .map(character => relation('linkCharacter', character));
+          .map(feature => relation('linkFeaturedCharacter', feature));
     }
 
     sec.nav = {};
@@ -109,6 +117,14 @@ export default {
               date: language.formatDate(data.issueDate),
               publisher: sec.releaseInfo.publisherLink,
             }),
+
+          sec.releaseInfo.storyContributionsLine.slots({
+            stringKey: 'storyPage.storyBy',
+          }),
+
+          sec.releaseInfo.artContributionsLine.slots({
+            stringKey: 'storyPage.artBy',
+          }),
         ]),
 
         sec.featuredInIssues && [
@@ -132,17 +148,22 @@ export default {
                   })))),
         ],
 
-        sec.featuredStories && [
-          sec.featuredStories.heading.slots({
+        sec.featuredCharacters && [
+          sec.featuredCharacters.heading.slots({
             id: 'featured-stories',
-            title: language.$('storyPage.storiesFeatured.title'),
+            title:
+              language.$('storyPage.featuredCharacters.title', {
+                story:
+                  html.tag('i',
+                    language.sanitize(data.name)),
+              }),
           }),
 
           html.tag('ul',
-            sec.featuredStories.storyLinks.map(storyLink =>
+            sec.featuredCharacters.characterLinks.map(characterLink =>
               html.tag('li',
-                language.$('storyPage.storiesFeatured.item', {
-                  story: storyLink,
+                language.$('storyPage.featuredCharacters.item', {
+                  character: characterLink,
                 })))),
         ],
       ],

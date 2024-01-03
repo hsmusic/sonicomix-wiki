@@ -1,7 +1,10 @@
 import {input} from '#composite';
 import find from '#find';
 
+import {featuredCharacterList} from '#composite/things/story';
+
 import {
+  contributionList,
   directory,
   name,
   referenceList,
@@ -16,10 +19,13 @@ export class Story extends Thing {
   static [Thing.referenceType] = 'story';
 
   static [Thing.getPropertyDescriptors] = ({
+    Artist,
     Character,
     Issue,
     Publisher,
   }) => ({
+    // Update & expose
+
     name: name('Unnamed Story'),
     directory: directory(),
 
@@ -29,15 +35,20 @@ export class Story extends Thing {
       data: 'publisherData',
     }),
 
-    featuredCharacters: referenceList({
-      class: input.value(Character),
-      find: input.value(find.character),
-      data: 'characterData',
-    }),
+    storyContribs: contributionList(),
+    artContribs: contributionList(),
+
+    featuredCharacters: featuredCharacterList(),
 
     featuredInIssues: reverseReferenceList({
       data: 'issueData',
       list: input.value('featuredStories'),
+    }),
+
+    // Update only
+
+    artistData: wikiData({
+      class: input.value(Artist),
     }),
 
     characterData: wikiData({

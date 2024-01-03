@@ -149,6 +149,16 @@ count:
       many: ""
       other: "{MONTHS} months"
 
+  stories:
+    _: "{STORIES}"
+    withUnit:
+      zero: ""
+      one: "{STORIES} story"
+      two: ""
+      few: ""
+      many: ""
+      other: "{STORIES} stories"
+
   timesReferenced:
     _: "{TIMES_REFERENCED}"
     withUnit:
@@ -537,6 +547,11 @@ misc:
       playlist: "YouTube (playlist)"
       fullAlbum: "YouTube (full album)"
 
+  featuredCharacterLink:
+    _: "{CHARACTER}"
+
+    withHow: "{CHARACTER} ({HOW})"
+
   # missingImage:
   #   Fallback text displayed in an image when it's sourced to a file
   #   that isn't available under the wiki's media directory. While it
@@ -849,6 +864,15 @@ artistGalleryPage:
   infoLine: >-
     Contributed to {COVER_ARTS}.
 
+characterPage:
+  title: "{CHARACTER}"
+
+  featuredInStories:
+    title: "{CHARACTER} is featured in {STORIES}:"
+    item:
+      _: "{STORY}"
+      withHow: "{STORY} ({HOW})"
+
 #
 # commentaryIndex:
 #   The commentary index page shows a summary of all the commentary
@@ -1052,6 +1076,13 @@ storyPage:
     single: "Featured in {ISSUE}, published {DATE} by {PUBLISHER}."
     listTitle: "Featured in issues published by {PUBLISHER}:"
     listItem: "({DATE}) {ISSUE}"
+
+  storyBy: "Story by {ARTISTS}."
+  artBy: "Art by {ARTISTS}."
+
+  featuredCharacters:
+    title: "Characters featured in {STORY}:"
+    item: "{CHARACTER}"
 
 #
 # newsIndex:

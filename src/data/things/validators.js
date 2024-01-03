@@ -431,6 +431,13 @@ export const isArtwork = validateProperties({
   artistContribs: isContributionList,
 });
 
+export const isFeaturedCharacter = validateProperties({
+  who: validateReference('character'),
+  how: optional(isStringNonEmpty),
+});
+
+export const isFeaturedCharacterList = validateArrayItems(isFeaturedCharacter);
+
 export const isArtworkList = validateArrayItems(isArtwork);
 
 export const isAdditionalFile = validateProperties({

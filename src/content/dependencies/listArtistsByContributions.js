@@ -22,6 +22,7 @@ export default {
       spec,
     };
 
+    /* eslint-disable-next-line */
     const queryContributionInfo = (artistsKey, countsKey, fn) => {
       const artists = sortAlphabetically(sprawl.artistData.slice());
       const counts = artists.map(artist => fn(artist));

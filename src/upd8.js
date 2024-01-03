@@ -828,6 +828,7 @@ async function main() {
       logInfo`Loaded data and processed objects:`;
       logThings('publisherData', 'publishers');
       logThings('storyData', 'stories');
+      logThings('characterData', 'characters');
       logThings('artistData', 'artists');
       if (wikiData.newsData) {
         logThings('newsData', 'news entries');
