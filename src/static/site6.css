@@ -602,7 +602,7 @@ li:not(:first-child:last-child) .datetimestamp-tooltip,
   padding-right: 8px;
 }
 
-.rerelease,
+.reissue,
 .other-group-accent {
   opacity: 0.7;
   font-style: oblique;

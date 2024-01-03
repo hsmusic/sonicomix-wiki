@@ -16,26 +16,19 @@ export default {
       validate: v => v.strictArrayOf(v.isHTML),
     },
 
-    rerelease: {type: 'boolean'},
+    reissue: {type: 'boolean'},
   },
 
   generate(slots, {html, language}) {
     let accentedContent = slots.content;
 
     accent: {
-      if (slots.rerelease) {
-        accentedContent =
-          language.$('artistPage.creditList.entry.rerelease', {
-            entry: accentedContent,
-          });
-
-        break accent;
-      }
-
       const parts = ['artistPage.creditList.entry'];
-      const options = {entry: accentedContent};
+      const options = {entry: slots.content};
 
-      if (slots.otherArtistLinks) {
+      if (slots.reissue) {
+        parts.push('reissue');
+      } else if (slots.otherArtistLinks) {
         parts.push('withArtists');
         options.artists = language.formatConjunctionList(slots.otherArtistLinks);
       }
@@ -54,7 +47,7 @@ export default {
 
     return (
       html.tag('li',
-        slots.rerelease && {class: 'rerelease'},
+        slots.reissue && {class: 'reissue'},
         accentedContent));
   },
 };

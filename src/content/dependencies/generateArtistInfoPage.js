@@ -1,8 +1,9 @@
-import {empty} from '#sugar';
+import {empty, unique} from '#sugar';
 
 export default {
   contentDependencies: [
     'generateArtistInfoPageCommentaryChunkedList',
+    'generateArtistInfoPageStoriesChunkedList',
     'generateArtistNavLinks',
     'generateContentHeading',
     'generateCoverArtwork',
@@ -14,8 +15,14 @@ export default {
 
   extraDependencies: ['html', 'language', 'wikiData'],
 
-  query() {
+  query(artist) {
     return {
+      allStories:
+        unique([
+          ...artist.storiesAsWriter,
+          ...artist.storiesAsArtist,
+        ]),
+
       hasGallery:
         false,
     };
@@ -48,6 +55,16 @@ export default {
           relation('linkExternal', url));
     }
 
+    if (!empty(query.allStories)) {
+      const stories = sections.stories = {};
+
+      stories.heading =
+        relation('generateContentHeading');
+
+      stories.list =
+        relation('generateArtistInfoPageStoriesChunkedList', artist);
+    }
+
     if (!empty([])) {
       const commentary = sections.commentary = {};
       commentary.heading = relation('generateContentHeading');
@@ -66,6 +83,8 @@ export default {
     if (artist.hasAvatar) {
       data.avatarFileExtension = artist.avatarFileExtension;
     }
+
+    data.totalStoryCount = query.allStories.length;
 
     return data;
   },
@@ -127,6 +146,26 @@ export default {
                         language.$('artistPage.commentaryList.title')),
                   ].filter(Boolean)),
               })),
+
+          sec.stories && [
+            sec.stories.heading
+              .slots({
+                tag: 'h2',
+                id: 'stories',
+                title: language.$('artistPage.storyList.title'),
+              }),
+
+            html.tag('p',
+              language.$('artistPage.storyList.storiesContributedLine', {
+                artist:
+                  data.name,
+
+                stories:
+                  language.countStories(data.totalStoryCount, {unit: true}),
+              })),
+
+            sec.stories.list,
+          ],
 
           sec.commentary && [
             sec.commentary.heading
