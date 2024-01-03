@@ -1,182 +1,23 @@
-# HSMusic
+# SoniComix - Sonic Comics Wiki
 
-HSMusic, short for the *Homestuck Music Wiki*, is a revitalization and reimagining of [earlier][fandom] [projects][nsnd] archiving and celebrating the expansive history of Homestuck official and fan music. Roughly periodic releases of the website are released at [hsmusic.wiki][hsmusic]; all development occurs in this public Git repository, which can be accessed at [github.com][github].
+This is an experimental wiki forking [hsmusic](https://github.com/hsmusic/hsmusic-wiki) to see just how adaptable its codebase is to rather different content!
 
-## Quick Start
+You can view a build of the website (which may or may not be up to date) at [sonicomix.hsmusic.wiki](https://sonicomix.hsmusic.wiki). Data and media files for SoniComix are available at [sonicomix-content](https://github.com/hsmusic/sonicomix-content).
 
-Install dependencies:
+### git Branch Hierarchy
 
-- [Node.js](https://nodejs.org/en/) - we recommend using [nvm](https://github.com/nvm-sh/nvm) to install Node and keep easy track of any versions you've got installed; development is generally tested on latest but 20.x LTS should also work
-- [ImageMagick](https://imagemagick.org/) - check your package manager if it's available (e.g. apt or homebrew) or follow [installation info right from the official website](https://imagemagick.org/script/download.php)
+Due to its nature, SoniComix involves trimming a lot of the particular site content and features that HSMusic provides, while leaving most of the guts. In order to facilitate updating SoniComix with upstream HSMusic, as well as patching infrastructural features we introduce in SoniComix into HSMusic, we've jury-rigged a hierarchy of branches:
 
-Make a new empty folder for storing all your HSMusic repositories, then clone 'em with git:
+* `hsm/preview` is a 1-to-1 remote tracking copy of the "preview" branch on HSMusic.
+* `soni/clean` holds the canonical description of how we strip HSMusic-specific content and leave just the useful internals. It's based and regularly rebased on `hsm/preview` to prepare a "clean slate" for other branches to work off of.
+* `soni/main` holds all the actual content and page particulars for SoniComix. It's based (and rebased) on `soni/clean`, so that its commits are always working off a clean slate. Rebasing `soni/main` should generally be painless as long as it hasn't touched lines of code too close to internals updated by a recent rebase of `soni/clean`. (SoniComix doesn't have a concept of "release", "staging" and "preview" like HSMusic - `soni/main` is the canonical working branch.)
 
-```
-$ cd /path/to/my/projects/
-$ mkdir hsmusic
-$ cd hsmusic
-$ git clone https://github.com/hsmusic/hsmusic-wiki code
-Cloning into 'code'...
-$ git clone https://github.com/hsmusic/hsmusic-data data
-Cloning into 'data'...
-$ git clone https://github.com/hsmusic/hsmusic-media media
-Cloning into 'media'...
-```
+Speculative branches never hold any unique content, and are always reset in particular ways to get a useful working environment. They're used to merge featuers that are coming, but not yet present, in `hsm/preview` (i.e. upstream `preview`).
 
-Install NPM dependencies (packages) used by HSMusic:
+* `hsm/speculative` is always reset to `hsm/preview`, then rebased/merged with the relevant feature branches (e.g. [`hsm/composite-subroutines`](https://github.com/hsmusic/hsmusic-wiki/pull/342)). (Feature branches should also be rebased against `hsm/preview`.)
+* `soni/clean-speculative` is always reset to `soni/clean`, then rebased on `hsm/speculative`. It's basically saying "how would we represent the blank slate relative to speculative features?" This may involve resolving conflicts if the speculative features involve changing wiki-specific features are represented.
+* `soni/main-speculative` is always reset to `soni/main`, then rebased on `soni/clean-speculative`. Similarly to above, this is saying "how would we add SoniComix-specific content onto the updated blank slate including speculative features?" It may involve resolving conflicts or updating existing patterns in a similar way.
 
-```
-$ cd code
-$ npm install
-added 413 packages, and audited 612 packages in 10s
-```
+While we generally perform work on `soni/main-speculative`, we *commit* to `soni/main`, because it's the canonical representation. This can be a bit problematic for actually leaving `soni/main` in a functional state though, since it doesn't have the speculative changes that code written in `soni/main-speculative` may depend on - so in principle we'd like to write there and commit to separate branches off `soni/main-speculative`, just rebasing as appropriate when the relevant features are merged into `hsm/preview` and so the SoniComix feature branch is ready to merge into `soni/main`.
 
-Optionally, use `npm link` to make `hsmusic` available from the command line anywhere on your device:
-
-```
-$ npm link
-# This doesn't work reliably on every device. If it shows
-# an error about permissions (and you aren't interested in
-# working out the details yourself), you can just move on.
-```
-
-Go back to the main directory (containing all the repos) and make an empty folder for the first and subsequent builds:
-
-```
-$ cd ..
-
-$ pwd
-/path/to/my/projects/hsmusic
-$ ls
-code/  data/  media/
-# If you don't see the above info, you've moved to the wrong directory.
-# Just do cd /path/to/my/projects/hsmusic (with whatever path you created
-# the main directory in) to get back.
-
-$ mkdir out
-```
-
-Then build the site:
-
-```
-# If you used npm link:
-$ hsmusic --data-path data --media-path media --out-path out
-
-# If you didn't:
-$ node code/src/upd8.js --data-path data --media-path media --out-path out
-```
-
-You should get a bunch of info eventually showing the site building! It may take a while (especially since HSMusic has a lot of data nowadays).
-
-If all goes according to plan and there aren't any errors, all the site HTML should have been written to the `out` directory. Use a simple HTTP server to view it in your browser:
-
-```
-$ cd site
-
-# choose your favorite HTTP server
-$ npx http-server -p 8002
-$ python3 -m http.server 8002
-$ python2 -m SimpleHTTPServer 8002
-```
-
-If you don't have access to an HTTP server or lack device permissions to run one, you can also just view the generated HTML files in your browser and *most* features should still work. (Try `--append-index-html` in the `hsmusic`/`upd8.js` command to make generated links more direct.) This isn't an officially supported way to develop, so there might be bugs, but most of the site should still work.
-
-**If you encounter any errors along the way, or would like help getting the wiki working,** please feel welcomed to reach out through the [HSMusic Community Discord Server][discord]. We're a fairly active group there and are always happy to help! **This also applies if you don't have much experience with Git, GitHub, Node, or any of the necessary tooling, and want help getting used to them.**
-
-## Project Structure
-
-### General build process
-
-When you run HSMusic to build the wiki, several processes happen in succession. Any errors along the way will be reported - we hope with human-readable feedback, but [pop by the Discord][discord] if you have any questions or need help understanding errors or parts of the code.
-
-1. Update thumbnails in the media repo so that any new images automatically get thumbnails.
-2. Locate and read data files, processing them into relatively usable JS object-style formats.
-3. Validate the data and show any errors caught during processing.
-4. Create symlinks for static files and generate the basic directory structure for the site.
-5. Generate and write HTML files (and any supporting files) containing all content.
-
-### Multiple repositories
-
-HSMusic works using a number of repositories in tandem:
-
-- [`hsmusic-wiki`][github-code] (colloquially "code"): The code repository, including all behavior required to process data and content from the other repositories and turn it into an actual website. This is probably the repo you're viewing right now.
-  - Code is written entirely in modern JavaScript, with the actual website a static combination of HTML and CSS (with inexhaustive JavaScript for certain features).
-  - More details about the code repository below.
-- [`hsmusic-data`][github-data]: The data repository, comprising all the data which makes a given wiki what it *is*. The repository linked here is for the [Homestuck Music Wiki][hsmusic] itself, but it may be swapped out for other data repos to build other completely different wikis.
-  - This repo covers albums, tracks, artists, groups, and a variety of other things which make up the content of a music wiki.
-  - The data repo also contains all the metadata which makes one wiki unique from another: layout info, static pages (like "About & Credits"), whether or not certain site features are enabled (like "Flashes & Games" or UI for browsing groups), and so on.
-  - All data is written and accessed in the YAML format, and every file follows a specific structure described within this (code) repository. See below and the `src/data` directory for details.
-- [`hsmusic-media`][github-media]: The media repository, holding all album, track, and layout media used across the site in one place. Media and organization directly corresponds to entries in the data repository; generally the data and media repositories go together and are swapped out for another together.
-- *Language repo:* The language repository, holding up-to-date strings and other localization info for HSMusic. NB: This repo isn't currently online as its structure and tooling haven't been polished or properly put together yet, but it's not required for building the site.
-  - Strings and language info are stored in top-level JSON files within this repository. They're based off the `src/strings-default.json` file within the code repo (and don't need to provide translations for all strings to be used for site building).
-
-The code repository as well as the data and media repositories are require for site building, with the language repo optionally provided to add localization support to the wiki build.
-
-The path to each repo may be specified respectively by the `--data-path`, `--media-path`, and `--lang-path` arguments (when building the site or using e.g. data-related CLI tools). If you find it inconvenient to type or keep track of these values, you may alternatively set environment variables `HSMUSIC_DATA`, `HSMUSIC_MEDIA`, and `HSMUSIC_LANG` to provide the same values. One convenient layout for locally organizing the HSMusic repositories is shown below:
-
-    path/to/my/projects/
-      hsmusic/
-        code/   <clone of hsmusic-wiki>
-        data/   <clone of hsmusic-data>
-        media/  <clone of hsmusic-media>
-        out/    <empty directory> (will be overwritten)
-        env.sh
-
-The `env.sh` script shown above is a straightforward utility for loading those variables into the envronment, so you don't need to type path arguments every time:
-
-    #!/bin/bash
-    base="$(realpath "$(dirname ${BASH_SOURCE[0]})")"
-    export HSMUSIC_DATA="$base/data/"
-    export HSMUSIC_MEDIA="$base/media/"
-    # export HSMUSIC_LANG="$base/lang/" # uncomment if present
-    export HSMUSIC_OUT="$base/out/"
-
-Then use `source env.sh` when starting work from the CLI to get access to all the convenient environment variables. (This setup is written for Bash of course, but you can use the same idea to export env variables with your own shell's syntax.)
-
-### Code repository source structure
-
-The source code for HSMusic is divided across a number of source files, loosely grouped together in a number of directories:
-
-- `src/`
-  - `data/`
-    - `things/`: Descriptors for individual types of data objects used across the wiki, notably including:
-      - `cacheable-object.js`: Backbone of how data objects (colloquially "things") store, share, and compute their properties
-      - `thing.js`: Common superclass for most data objects, with a bunch of utilities and common behavior
-      - `validators.js`: Convenient error-throwing utilities which help ensure properties set on data objects follow the right format
-    - `yaml.js`: Mappings from YAML documents (the format used in `hsmusic-data`) to things (actual data objects), and a full suite of utilities used to actually load that data from scratch
-  - `content/`: Functions which generate HTML content; these go from bite-sized, commonly reused utilities (like `linkTemplate`) all the way up to entire page definitions (like `generateArtistInfoPage`)
-  - `page/`: Definitions for page paths, mapping data objects to paths served over an HTTP server (or written to an output folder) and to the functions which actually generate those pages' content
-  - `write/`: Common utilities and output methods for controlling what hsmusic does to turn data and media into something you actually visit; these each define a variety of command-line arguments and are basically the interchangeable  "second half" of upd8.js
-    - `live-dev-server.js`: Gets the site available for viewing as quickly as possible, generating and serving pages as they are requested from a local HTTP server; reacts live to code changes in the `content` directory
-    - `static-build.js`: Builds the entire site at once, writing all the output to one self-contained folder which can be uploaded to a static file server
-  - `static/`: Purely client-side files are kept here, e.g. site CSS, icon SVGs, and client-side JS
-  - `util/`: Common utilities which generally may be accessed from both Node.js or the client (web browser)
-  - `upd8.js`: Main entry point which controls and directs site generation from start to finish
-  - `gen-thumbs.js`: Standalone utility also called every time HSMusic is run (unless `--skip-thumbs` is provided) which keeps a persistent cache of media MD5s and (re)generates thumbnails for new or updated image files
-  - `repl.js`: Standalone utility for loading all wiki data and providing a convenient REPL to run filters and transformations on data objects right from the Node.js command line
-  - `listing-spec.js`: Descriptors for computations and HTML templates used for the Listings part of the site
-  - `url-spec.js`: Index of output paths where generated HTML ends up; also controls where `<a>`, `<img>`, etc tags link
-  - `file-size-preloader.js`: Simple utility for calculating size of files in media directory
-  - `strings-default.json`: Template for localization strings and index of default (English) strings used all across the site layout
-
-## Forking
-
-hsmusic is a relatively generic music wiki software, so you're more than encouraged to create a fork for your own archival or cataloguing purposes! You're encouraged to [drop us a link][feedback] if you do - we'd love to hear from you.
-
-## Pull Requests
-
-As mentioned, part of the focus of the hsmusic.wiki release, as well as most development since, has been to create a more modular and developer-friendly repository. So, on the curious chance anyone would like to contribute code to the repo, that's more possible now than it used to be!
-
-Still, for larger additions, we encourage you to [drop the main devs an email][feedback] or, better yet, [pop by the Discord][discord] before writing all the implementation code: besides code tips which might make your life a bit easier (questions are welcome), we also love to discuss feature designs and values while they're still being brainstormed! That way, nobody has to tell you there are fundamental ideas or implementation details that should be rebuilt from the ground up - the last thing we want is anyone putting hours into code that has to be replaced by another implementation before it ever ends up part of the wiki!
-
-As ever, feedback is always welcome, and may be shared via the usual links. Thank you for checking the repository out!
-
-  [discord]: https://hsmusic.wiki/discord/
-  [fandom]: https://homestuck-and-mspa-music.fandom.com/wiki/Homestuck_and_MSPA_Music_Wiki
-  [feedback]: https://hsmusic.wiki/feedback/
-  [github]: https://github.com/hsmusic/hsmusic-wiki
-  [github-code]: https://github.com/hsmusic/hsmusic-wiki
-  [github-data]: https://github.com/hsmusic/hsmusic-data
-  [github-media]: https://github.com/hsmusic/hsmusic-media
-  [hsmusic]: https://hsmusic.wiki
-  [nsnd]: https://homestuck.net/music/references.html
+It's sort of a mess that we're still working out! But it's helped give some hard practice with git branches and rebasing. We're still learning!
